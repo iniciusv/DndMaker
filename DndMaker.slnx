@@ -1,0 +1,26 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="nuget.config" />
+    <File Path="docs/PLANO.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/DndMaker.Domain/DndMaker.Domain.csproj" />
+    <Project Path="src/DndMaker.Content/DndMaker.Content.csproj" />
+    <Project Path="src/DndMaker.Application/DndMaker.Application.csproj" />
+    <Project Path="src/DndMaker.Infrastructure/DndMaker.Infrastructure.csproj" />
+    <Project Path="src/DndMaker.Desktop/DndMaker.Desktop.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DndMaker.Domain.Tests/DndMaker.Domain.Tests.csproj" />
+    <Project Path="tests/DndMaker.Content.Tests/DndMaker.Content.Tests.csproj" />
+    <Project Path="tests/DndMaker.Application.Tests/DndMaker.Application.Tests.csproj" />
+    <Project Path="tests/DndMaker.Desktop.Tests/DndMaker.Desktop.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <File Path="tools/golden/export-golden.js" />
+  </Folder>
+</Solution>

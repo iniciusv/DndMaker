@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Regras genéricas de D&D 2024. Não referencia nenhum outro projeto nem pacote. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="DndMaker.Domain.Tests" />
+  </ItemGroup>
+</Project>

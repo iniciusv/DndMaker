@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Builds para Barovia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+<style>
+/* Plano: três cartas de Tarokka lado a lado sob uma estrada de níveis que vai da Death House ao Castle Ravenloft. */
+:root{
+  --fog:#e8e6ee; --card:#f5f4f8; --ink:#1e1a28; --muted:#5f5970; --line:#cdc8d8; --blood:#8c1d2f;
+  --good:#2c6a4d; --mid:#8f6410; --low:#6c6580;
+  --display:"IM Fell English", "Iowan Old Style", Georgia, serif;
+  --caps:"IM Fell English SC", "IM Fell English", Georgia, serif;
+  --body:"Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --fog:#13101a; --card:#1c1826; --ink:#e5e1ee; --muted:#a59db8; --line:#383147; --blood:#e2596d;
+    --good:#74c49b; --mid:#dba945; --low:#8f87a6; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --fog:#13101a; --card:#1c1826; --ink:#e5e1ee; --muted:#a59db8; --line:#383147; --blood:#e2596d;
+  --good:#74c49b; --mid:#dba945; --low:#8f87a6; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--fog);color:var(--ink);font:400 16px/1.45 var(--body);font-variant-numeric:lining-nums tabular-nums}
+main{max-width:1320px;margin:0 auto;padding:28px 20px 64px;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3,p,ul,ol{margin:0}
+h1{font:400 clamp(2.1rem,5vw,3.4rem)/1.02 var(--display);letter-spacing:-.01em;text-wrap:balance}
+h1 em{color:var(--blood)}
+.eyebrow{font:400 .95rem/1.2 var(--caps);letter-spacing:.08em;color:var(--muted)}
+.lede{max-width:62ch;color:var(--muted);font-size:1.08rem}
+.mast{display:flex;flex-direction:column;gap:10px;border-bottom:1px solid var(--line);padding-bottom:22px}
+a{color:var(--blood)}
+:focus-visible{outline:2px solid var(--blood);outline-offset:2px}
+
+/* estrada de níveis */
+.road{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px 28px;align-items:end}
+.road h2,.sec h2{font:400 1.5rem/1.1 var(--display)}
+.road-main{display:flex;flex-direction:column;gap:8px;min-width:0}
+.road-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.road-head b{font:400 1.5rem/1 var(--display);color:var(--blood)}
+.road-head span{color:var(--muted)}
+#levels{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px}
+#levels button{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--ink);font:500 1.05rem/1 var(--body);padding:11px 0;border-radius:3px;cursor:pointer}
+#levels button.win{border-bottom:3px solid var(--blood)}
+#levels button:hover{border-color:var(--ink)}
+#levels button[aria-pressed="true"]{background:var(--ink);color:var(--fog);border-color:var(--ink)}
+#phases{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px}
+#phases span{font:400 .82rem/1.15 var(--caps);letter-spacing:.04em;color:var(--muted);border-top:1px solid var(--muted);padding-top:5px;overflow-wrap:anywhere}
+.road-side{display:flex;flex-wrap:wrap;gap:12px}
+.f{display:flex;flex-direction:column;gap:3px;min-width:0}
+.f span{font:400 .82rem/1.2 var(--caps);letter-spacing:.05em;color:var(--muted)}
+select{font:400 .98rem/1.2 var(--body);color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:3px;padding:7px 8px;width:100%;max-width:100%}
+select:hover{border-color:var(--ink)}
+
+/* cartas */
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:18px;align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:4px;display:flex;flex-direction:column;min-width:0}
+.ctl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:14px 16px;border-bottom:1px dashed var(--line)}
+.ctl .f:first-child{grid-column:1/-1}
+.res{display:flex;flex-direction:column;gap:12px;padding:16px}
+.card-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid var(--ink);outline:1px solid var(--ink);outline-offset:3px;margin:4px;padding:12px 14px}
+.rn{font:400 2rem/1 var(--display);color:var(--blood);min-width:1.4em;text-align:center}
+.ep{font:400 .9rem/1.1 var(--caps);letter-spacing:.07em;color:var(--muted)}
+.card-head h2{font:400 1.45rem/1.1 var(--display);text-wrap:balance}
+.tag{font:400 .74rem/1 var(--caps);letter-spacing:.06em;border:1px solid currentColor;border-radius:2px;padding:3px 6px;white-space:nowrap;color:var(--muted)}
+.tag.t-finalista{color:var(--blood)}
+.tag.t-descartada{text-decoration:line-through}
+.sum{color:var(--muted)}
+.res h3{font:400 1rem/1.2 var(--caps);letter-spacing:.07em;border-bottom:1px solid var(--line);padding-bottom:4px;margin-top:6px}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.tile{border:1px solid var(--line);border-radius:3px;padding:8px 6px;text-align:center;display:flex;flex-direction:column;gap:2px}
+.tile b{font:400 1.55rem/1 var(--display)}
+.tile span{font-size:.78rem;color:var(--muted);line-height:1.15}
+.tile.top{border-color:var(--blood)}
+.tile.top b{color:var(--blood)}
+.fine{font-size:.88rem;color:var(--muted)}
+.six{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+.six div{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;border:1px solid var(--line);border-radius:3px;min-width:0}
+.six span{font:400 .78rem/1 var(--caps);letter-spacing:.05em;color:var(--muted)}
+.six b{font:500 1.1rem/1.1 var(--body)}
+.six i{font-style:normal;font-size:.72rem;color:var(--muted);text-align:center;line-height:1.1;overflow-wrap:anywhere}
+.sv .prof{border-color:var(--ink)}
+.sv .prof i{color:var(--ink)}
+.meters{display:flex;flex-direction:column;gap:10px}
+.meter-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.meter-top b{font:500 1.05rem/1 var(--body)}
+.bar{height:7px;background:color-mix(in srgb,var(--line) 70%,transparent);border-radius:4px;overflow:hidden;margin:4px 0 2px}
+.bar i{display:block;height:100%;border-radius:4px;background:var(--low)}
+.meter.good .bar i{background:var(--good)} .meter.good b{color:var(--good)}
+.meter.mid .bar i{background:var(--mid)} .meter.mid b{color:var(--mid)}
+.meter small{color:var(--muted);font-size:.8rem}
+.rt,.plain,.prog{list-style:none;padding:0;display:flex;flex-direction:column}
+.rt{gap:8px}
+.rt li{border-left:3px solid var(--line);padding:2px 0 2px 10px;display:flex;flex-direction:column;gap:2px}
+.rt li.pick{border-left-color:var(--blood)}
+.rt li.off{opacity:.62}
+.rt-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.rt-top b{font:400 1.3rem/1 var(--display)}
+.rt li.pick .rt-top b{color:var(--blood)}
+.rt-sub{font-size:.84rem;color:var(--muted)}
+.rt-sub code{font:500 .84rem/1.3 ui-monospace,Menlo,Consolas,monospace;color:var(--ink);overflow-wrap:anywhere}
+.pill{font-size:.74rem;border:1px solid var(--line);border-radius:10px;padding:1px 7px;white-space:nowrap}
+.pill.p1{border-color:var(--mid);color:var(--mid)} .pill.p2{border-color:var(--blood);color:var(--blood)}
+.prog{gap:5px;counter-reset:none}
+.prog li{display:grid;grid-template-columns:1.9em minmax(0,1fr);gap:8px;font-size:.92rem;align-items:baseline}
+.prog li span{font:500 .85rem/1.5 var(--body);text-align:center;border:1px solid var(--line);border-radius:3px}
+.prog li.now span{background:var(--blood);border-color:var(--blood);color:var(--fog)}
+.prog li.now{font-weight:500}
+.prog li.later{color:var(--muted)}
+.plain{gap:6px;font-size:.92rem}
+
+/* matrizes e notas */
+.sec{display:flex;flex-direction:column;gap:10px}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:4px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:.93rem}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
+thead th{font:400 .82rem/1.2 var(--caps);letter-spacing:.05em;color:var(--muted);white-space:nowrap}
+tbody th{font-weight:500;min-width:190px}
+tbody th .tag{margin-left:8px}
+.n{text-align:right;white-space:nowrap}
+td.top{color:var(--blood);font-weight:700}
+td.wide{min-width:240px;color:var(--muted)}
+td.go{white-space:nowrap}
+td.go button{appearance:none;border:1px solid var(--line);background:transparent;color:var(--ink);font:400 .9rem/1 var(--display);padding:5px 8px;border-radius:3px;cursor:pointer;margin-right:3px}
+td.go button:hover{border-color:var(--blood);color:var(--blood)}
+#m2 .win{border-left:1px solid var(--muted);border-right:1px solid var(--muted)}
+#m2 th.win{color:var(--blood)}
+#m2 .cur{outline:2px solid var(--ink);outline-offset:-2px}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px 32px}
+.notes section{display:flex;flex-direction:column;gap:8px;min-width:0}
+.notes h3{font:400 1.05rem/1.2 var(--caps);letter-spacing:.07em;border-bottom:1px solid var(--line);padding-bottom:4px}
+.notes ul{padding-left:1.1em;display:flex;flex-direction:column;gap:5px;font-size:.95rem}
+.notes li{max-width:65ch}
+@media (max-width:760px){
+  .road{grid-template-columns:minmax(0,1fr)}
+  #phases span{font-size:.7rem}
+}
+@media (max-width:420px){
+  main{padding:20px 16px 48px}
+  .ctl{grid-template-columns:minmax(0,1fr)}
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .six{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:no-preference){ .bar i{transition:width .25s ease} }
+</style>
+</head>
+<body>
+<main>
+  <header class="mast">
+    <p class="eyebrow">Curse of Strahd · regras de 2024 · níveis 1 a 10</p>
+    <h1>Quem eu levo para <em>Barovia</em>?</h1>
+    <p class="lede">Monte até três personagens lado a lado. Troque a build, a espécie, o antecedente e os talentos, ande pela estrada de níveis e veja a defesa, os testes de resistência e o dano de cada um mudarem.</p>
+  </header>
+
+  <section class="road" aria-label="Nível e premissas">
+    <div class="road-main">
+      <div class="road-head"><h2>Nível</h2><b id="lv-now">5</b><span id="lv-phase"></span></div>
+      <div id="levels" role="group" aria-label="Nível do personagem"></div>
+      <div id="phases" aria-hidden="true"></div>
+    </div>
+    <div class="road-side">
+      <label class="f"><span>CA do inimigo</span>
+        <select id="ac"><option value="13">13 (zumbis, lobos)</option><option value="15">15 (típico)</option><option value="16">16 (Strahd)</option><option value="18">18 (blindado)</option></select></label>
+      <label class="f"><span>Contar rotinas</span>
+        <select id="tier"><option value="0">só à vontade</option><option value="1">até magia de concentração</option><option value="2">até o pico, gastando recursos</option></select></label>
+    </div>
+  </section>
+
+  <section id="cols" class="cols" aria-label="Cartas comparadas"></section>
+
+  <section class="sec">
+    <h2 id="m1-title">Todas as builds</h2>
+    <div class="scroll"><table id="m1"></table></div>
+    <p class="fine" id="m-cap"></p>
+  </section>
+
+  <section class="sec">
+    <h2>Dano esperado em cada nível</h2>
+    <div class="scroll"><table id="m2"></table></div>
+    <p class="fine">As colunas 5 e 6 são a janela em que você quer estar forte. Do nível 7 em diante já é o final da campanha.</p>
+  </section>
+
+  <section class="sec">
+    <h2>O que já sabemos</h2>
+    <div class="notes">
+      <section><h3>O que você pediu</h3><ul>
+        <li>Ser forte nos níveis 5 e 6, quando combatentes ganham o segundo ataque e conjuradores ganham magias de 3º círculo.</li>
+        <li>Lutar você mesmo, de perto ou de longe, com magias e espaço para personalizar.</li>
+        <li>Suporte aos aliados não é prioridade: a party já tem muito.</li>
+        <li>Não depender de ficar concentrando no Hex.</li>
+      </ul></section>
+      <section><h3>Decisões até aqui</h3><ul>
+        <li><b>Finalistas:</b> Guerreiro 1 → Bruxo com Pact of the Blade, Bardo do Valor e Paladino.</li>
+        <li><b>Descartadas:</b> Battle Master com besta (cobra um talento e não tem magias) e Patrulheiro Beast Master (não agradou).</li>
+        <li><b>Espécies em vista:</b> humano (talento extra), gnomo (vantagem em testes mentais), Genasi da Terra, aasimar, Hexblood, Shadar-kai, Owlin.</li>
+        <li>O Twilight Sanctuary e o Divine Smite radiante são as respostas mais fortes aos mortos-vivos; o Toll the Dead é necrótico e muitos deles resistem.</li>
+      </ul></section>
+      <section><h3>Regras da mesa</h3><ul>
+        <li>Começa no nível 1 e vai até o 10. Atributos por rolagem ou compra de pontos.</li>
+        <li>Valem todos os livros oficiais, de 2014 e de 2024. Nada de fãs ou de terceiros, o que tira o Blood Hunter.</li>
+        <li>Ravenloft: The Horrors Within (2026) é o livro mais próximo da campanha: patrono Undead, Hollow Warden, Feiticeiro das Sombras, quatro espécies e os Dark Gifts.</li>
+        <li>Multiclasse: testes de resistência e armadura pesada do guerreiro só vêm se ele for a primeira classe.</li>
+      </ul></section>
+      <section><h3>A party</h3><ul>
+        <li>Clérigo da Forja, Paladino da Vingança, Ladino, Artífice, Mago das Espadas, Bardo e Druida das Estrelas.</li>
+        <li>Sobram magia, cura e suporte. Faltam dano constante com arma, ataque à distância e um segundo tanque.</li>
+        <li>Perícias já cobertas: armadilhas, conhecimento arcano e religioso, natureza e conversa. Valem as que cada um rola por si: Percepção, Furtividade, Intuição e Atletismo ou Acrobacia.</li>
+        <li>O artífice pode fazer uma besta Repeating Shot, e a aura do paladino protege quem fica a 3 m dele a partir do nível 6.</li>
+      </ul></section>
+      <section><h3>Talentos em destaque</h3><ul>
+        <li><b>Alert:</b> soma o bônus de proficiência à iniciativa (+2, depois +3) e deixa trocar de lugar na ordem com um aliado. Serve em qualquer build.</li>
+        <li><b>Fey Touched</b> (nível 4 em diante): +1 em Inteligência, Sabedoria ou Carisma, Misty Step e uma magia de 1º círculo, cada uma grátis uma vez por dia e também com seus espaços. Ótimo para quem tem 17 no atributo principal.</li>
+        <li><b>Magic Initiate:</b> no 2024 você escolhe o atributo. Mago dá Shield; Druida dá Shillelagh com Carisma.</li>
+        <li><b>Lucky</b> e <b>Survivor</b> são as melhores defesas de talento contra o charme de Strahd.</li>
+        <li>O talento extra do humano é de origem e não aumenta atributo. Os Dark Gifts não podem ser pegos por ele.</li>
+      </ul></section>
+      <section><h3>Como os números são feitos</h3><ul>
+        <li>Conjunto padrão (15, 14, 13, 12, 10, 8) distribuído pela prioridade da build, com +2 e +1 do antecedente nos dois melhores atributos que ele permite.</li>
+        <li>O aumento de atributo arredonda o principal e põe o ponto que sobra no próximo atributo ímpar.</li>
+        <li>Dano esperado = dano médio vezes a chance de acertar a CA escolhida, sem críticos. Magias com teste assumem +2 no teste do inimigo.</li>
+        <li>Armadura: cota de escamas até o nível 4 e meia armadura a partir do 5 para quem usa média; cota de malha para quem usa pesada com Força 13.</li>
+        <li>Parte das regras veio de resumos públicos e parte de memória. Antes de fechar a ficha, confira no livro.</li>
+      </ul></section>
+      <section><h3>Perguntas para o Mestre</h3><ul>
+        <li>Experiência ou marcos?</li>
+        <li>O Clérigo do Crepúsculo está liberado?</li>
+        <li>Qual ficha do Strahd vale, a de 2016 ou a nova?</li>
+        <li>Quais perícias cada colega já pegou?</li>
+      </ul></section>
+      <section><h3>Documentos completos</h3><ul>
+        <li><a href="https://claude.ai/artifact/UnMo8Dpx28gQV3vRSxtXfZ">Classes, regras, party e ficha</a></li>
+        <li><a href="https://claude.ai/artifact/SLKsd1QLvpnMxRuqKhNeWs">Espécies e combinações</a></li>
+      </ul></section>
+    </div>
+  </section>
+</main>
+<script>
+/*LOGIC*/
+/*UI*/
+</script>
+</body>
+</html>

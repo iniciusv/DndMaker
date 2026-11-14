@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Testes de paridade: comparam o C# com a saída do logic.js gravada em tools/golden/golden.json. -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\DndMaker.Content\DndMaker.Content.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\tools\golden\golden.json" Link="Golden\golden.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\DndMaker.Application\DndMaker.Application.csproj" />
+    <ProjectReference Include="..\..\src\DndMaker.Content\DndMaker.Content.csproj" />
+  </ItemGroup>
+</Project>

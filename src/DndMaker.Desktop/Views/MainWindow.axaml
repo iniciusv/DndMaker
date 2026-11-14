@@ -1,0 +1,14 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DndMaker.Desktop.ViewModels"
+        x:Class="DndMaker.Desktop.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="Builds para Barovia"
+        Width="1280" Height="800" MinWidth="420"
+        WindowStartupLocation="CenterScreen">
+  <StackPanel Margin="28" Spacing="10">
+    <TextBlock Text="{Binding Subtitle}" Opacity="0.7" />
+    <TextBlock Text="{Binding Title}" FontSize="40" TextWrapping="Wrap" />
+    <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Opacity="0.7" />
+  </StackPanel>
+</Window>

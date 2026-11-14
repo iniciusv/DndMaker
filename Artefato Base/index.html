@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Builds para Barovia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+<style>
+/* Plano: três cartas de Tarokka lado a lado sob uma estrada de níveis que vai da Death House ao Castle Ravenloft. */
+:root{
+  --fog:#e8e6ee; --card:#f5f4f8; --ink:#1e1a28; --muted:#5f5970; --line:#cdc8d8; --blood:#8c1d2f;
+  --good:#2c6a4d; --mid:#8f6410; --low:#6c6580;
+  --display:"IM Fell English", "Iowan Old Style", Georgia, serif;
+  --caps:"IM Fell English SC", "IM Fell English", Georgia, serif;
+  --body:"Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --fog:#13101a; --card:#1c1826; --ink:#e5e1ee; --muted:#a59db8; --line:#383147; --blood:#e2596d;
+    --good:#74c49b; --mid:#dba945; --low:#8f87a6; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --fog:#13101a; --card:#1c1826; --ink:#e5e1ee; --muted:#a59db8; --line:#383147; --blood:#e2596d;
+  --good:#74c49b; --mid:#dba945; --low:#8f87a6; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--fog);color:var(--ink);font:400 16px/1.45 var(--body);font-variant-numeric:lining-nums tabular-nums}
+main{max-width:1320px;margin:0 auto;padding:28px 20px 64px;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3,p,ul,ol{margin:0}
+h1{font:400 clamp(2.1rem,5vw,3.4rem)/1.02 var(--display);letter-spacing:-.01em;text-wrap:balance}
+h1 em{color:var(--blood)}
+.eyebrow{font:400 .95rem/1.2 var(--caps);letter-spacing:.08em;color:var(--muted)}
+.lede{max-width:62ch;color:var(--muted);font-size:1.08rem}
+.mast{display:flex;flex-direction:column;gap:10px;border-bottom:1px solid var(--line);padding-bottom:22px}
+a{color:var(--blood)}
+:focus-visible{outline:2px solid var(--blood);outline-offset:2px}
+
+/* estrada de níveis */
+.road{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px 28px;align-items:end}
+.road h2,.sec h2{font:400 1.5rem/1.1 var(--display)}
+.road-main{display:flex;flex-direction:column;gap:8px;min-width:0}
+.road-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.road-head b{font:400 1.5rem/1 var(--display);color:var(--blood)}
+.road-head span{color:var(--muted)}
+#levels{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px}
+#levels button{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--ink);font:500 1.05rem/1 var(--body);padding:11px 0;border-radius:3px;cursor:pointer}
+#levels button.win{border-bottom:3px solid var(--blood)}
+#levels button:hover{border-color:var(--ink)}
+#levels button[aria-pressed="true"]{background:var(--ink);color:var(--fog);border-color:var(--ink)}
+#phases{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px}
+#phases span{font:400 .82rem/1.15 var(--caps);letter-spacing:.04em;color:var(--muted);border-top:1px solid var(--muted);padding-top:5px;overflow-wrap:anywhere}
+.road-side{display:flex;flex-wrap:wrap;gap:12px}
+.f{display:flex;flex-direction:column;gap:3px;min-width:0}
+.f span{font:400 .82rem/1.2 var(--caps);letter-spacing:.05em;color:var(--muted)}
+select{font:400 .98rem/1.2 var(--body);color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:3px;padding:7px 8px;width:100%;max-width:100%}
+select:hover{border-color:var(--ink)}
+
+/* cartas */
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:18px;align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:4px;display:flex;flex-direction:column;min-width:0}
+.ctl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:14px 16px;border-bottom:1px dashed var(--line)}
+.ctl .f:first-child{grid-column:1/-1}
+.res{display:flex;flex-direction:column;gap:12px;padding:16px}
+.card-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid var(--ink);outline:1px solid var(--ink);outline-offset:3px;margin:4px;padding:12px 14px}
+.rn{font:400 2rem/1 var(--display);color:var(--blood);min-width:1.4em;text-align:center}
+.ep{font:400 .9rem/1.1 var(--caps);letter-spacing:.07em;color:var(--muted)}
+.card-head h2{font:400 1.45rem/1.1 var(--display);text-wrap:balance}
+.tag{font:400 .74rem/1 var(--caps);letter-spacing:.06em;border:1px solid currentColor;border-radius:2px;padding:3px 6px;white-space:nowrap;color:var(--muted)}
+.tag.t-finalista{color:var(--blood)}
+.tag.t-descartada{text-decoration:line-through}
+.sum{color:var(--muted)}
+.res h3{font:400 1rem/1.2 var(--caps);letter-spacing:.07em;border-bottom:1px solid var(--line);padding-bottom:4px;margin-top:6px}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.tile{border:1px solid var(--line);border-radius:3px;padding:8px 6px;text-align:center;display:flex;flex-direction:column;gap:2px}
+.tile b{font:400 1.55rem/1 var(--display)}
+.tile span{font-size:.78rem;color:var(--muted);line-height:1.15}
+.tile.top{border-color:var(--blood)}
+.tile.top b{color:var(--blood)}
+.fine{font-size:.88rem;color:var(--muted)}
+.six{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+.six div{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;border:1px solid var(--line);border-radius:3px;min-width:0}
+.six span{font:400 .78rem/1 var(--caps);letter-spacing:.05em;color:var(--muted)}
+.six b{font:500 1.1rem/1.1 var(--body)}
+.six i{font-style:normal;font-size:.72rem;color:var(--muted);text-align:center;line-height:1.1;overflow-wrap:anywhere}
+.sv .prof{border-color:var(--ink)}
+.sv .prof i{color:var(--ink)}
+.meters{display:flex;flex-direction:column;gap:10px}
+.meter-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.meter-top b{font:500 1.05rem/1 var(--body)}
+.bar{height:7px;background:color-mix(in srgb,var(--line) 70%,transparent);border-radius:4px;overflow:hidden;margin:4px 0 2px}
+.bar i{display:block;height:100%;border-radius:4px;background:var(--low)}
+.meter.good .bar i{background:var(--good)} .meter.good b{color:var(--good)}
+.meter.mid .bar i{background:var(--mid)} .meter.mid b{color:var(--mid)}
+.meter small{color:var(--muted);font-size:.8rem}
+.rt,.plain,.prog{list-style:none;padding:0;display:flex;flex-direction:column}
+.rt{gap:8px}
+.rt li{border-left:3px solid var(--line);padding:2px 0 2px 10px;display:flex;flex-direction:column;gap:2px}
+.rt li.pick{border-left-color:var(--blood)}
+.rt li.off{opacity:.62}
+.rt-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.rt-top b{font:400 1.3rem/1 var(--display)}
+.rt li.pick .rt-top b{color:var(--blood)}
+.rt-sub{font-size:.84rem;color:var(--muted)}
+.rt-sub code{font:500 .84rem/1.3 ui-monospace,Menlo,Consolas,monospace;color:var(--ink);overflow-wrap:anywhere}
+.pill{font-size:.74rem;border:1px solid var(--line);border-radius:10px;padding:1px 7px;white-space:nowrap}
+.pill.p1{border-color:var(--mid);color:var(--mid)} .pill.p2{border-color:var(--blood);color:var(--blood)}
+.prog{gap:5px;counter-reset:none}
+.prog li{display:grid;grid-template-columns:1.9em minmax(0,1fr);gap:8px;font-size:.92rem;align-items:baseline}
+.prog li span{font:500 .85rem/1.5 var(--body);text-align:center;border:1px solid var(--line);border-radius:3px}
+.prog li.now span{background:var(--blood);border-color:var(--blood);color:var(--fog)}
+.prog li.now{font-weight:500}
+.prog li.later{color:var(--muted)}
+.plain{gap:6px;font-size:.92rem}
+
+/* matrizes e notas */
+.sec{display:flex;flex-direction:column;gap:10px}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:4px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:.93rem}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
+thead th{font:400 .82rem/1.2 var(--caps);letter-spacing:.05em;color:var(--muted);white-space:nowrap}
+tbody th{font-weight:500;min-width:190px}
+tbody th .tag{margin-left:8px}
+.n{text-align:right;white-space:nowrap}
+td.top{color:var(--blood);font-weight:700}
+td.wide{min-width:240px;color:var(--muted)}
+td.go{white-space:nowrap}
+td.go button{appearance:none;border:1px solid var(--line);background:transparent;color:var(--ink);font:400 .9rem/1 var(--display);padding:5px 8px;border-radius:3px;cursor:pointer;margin-right:3px}
+td.go button:hover{border-color:var(--blood);color:var(--blood)}
+#m2 .win{border-left:1px solid var(--muted);border-right:1px solid var(--muted)}
+#m2 th.win{color:var(--blood)}
+#m2 .cur{outline:2px solid var(--ink);outline-offset:-2px}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px 32px}
+.notes section{display:flex;flex-direction:column;gap:8px;min-width:0}
+.notes h3{font:400 1.05rem/1.2 var(--caps);letter-spacing:.07em;border-bottom:1px solid var(--line);padding-bottom:4px}
+.notes ul{padding-left:1.1em;display:flex;flex-direction:column;gap:5px;font-size:.95rem}
+.notes li{max-width:65ch}
+@media (max-width:760px){
+  .road{grid-template-columns:minmax(0,1fr)}
+  #phases span{font-size:.7rem}
+}
+@media (max-width:420px){
+  main{padding:20px 16px 48px}
+  .ctl{grid-template-columns:minmax(0,1fr)}
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .six{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:no-preference){ .bar i{transition:width .25s ease} }
+</style>
+</head>
+<body>
+<main>
+  <header class="mast">
+    <p class="eyebrow">Curse of Strahd · regras de 2024 · níveis 1 a 10</p>
+    <h1>Quem eu levo para <em>Barovia</em>?</h1>
+    <p class="lede">Monte até três personagens lado a lado. Troque a build, a espécie, o antecedente e os talentos, ande pela estrada de níveis e veja a defesa, os testes de resistência e o dano de cada um mudarem.</p>
+  </header>
+
+  <section class="road" aria-label="Nível e premissas">
+    <div class="road-main">
+      <div class="road-head"><h2>Nível</h2><b id="lv-now">5</b><span id="lv-phase"></span></div>
+      <div id="levels" role="group" aria-label="Nível do personagem"></div>
+      <div id="phases" aria-hidden="true"></div>
+    </div>
+    <div class="road-side">
+      <label class="f"><span>CA do inimigo</span>
+        <select id="ac"><option value="13">13 (zumbis, lobos)</option><option value="15">15 (típico)</option><option value="16">16 (Strahd)</option><option value="18">18 (blindado)</option></select></label>
+      <label class="f"><span>Contar rotinas</span>
+        <select id="tier"><option value="0">só à vontade</option><option value="1">até magia de concentração</option><option value="2">até o pico, gastando recursos</option></select></label>
+    </div>
+  </section>
+
+  <section id="cols" class="cols" aria-label="Cartas comparadas"></section>
+
+  <section class="sec">
+    <h2 id="m1-title">Todas as builds</h2>
+    <div class="scroll"><table id="m1"></table></div>
+    <p class="fine" id="m-cap"></p>
+  </section>
+
+  <section class="sec">
+    <h2>Dano esperado em cada nível</h2>
+    <div class="scroll"><table id="m2"></table></div>
+    <p class="fine">As colunas 5 e 6 são a janela em que você quer estar forte. Do nível 7 em diante já é o final da campanha.</p>
+  </section>
+
+  <section class="sec">
+    <h2>O que já sabemos</h2>
+    <div class="notes">
+      <section><h3>O que você pediu</h3><ul>
+        <li>Ser forte nos níveis 5 e 6, quando combatentes ganham o segundo ataque e conjuradores ganham magias de 3º círculo.</li>
+        <li>Lutar você mesmo, de perto ou de longe, com magias e espaço para personalizar.</li>
+        <li>Suporte aos aliados não é prioridade: a party já tem muito.</li>
+        <li>Não depender de ficar concentrando no Hex.</li>
+      </ul></section>
+      <section><h3>Decisões até aqui</h3><ul>
+        <li><b>Finalistas:</b> Guerreiro 1 → Bruxo com Pact of the Blade, Bardo do Valor e Paladino.</li>
+        <li><b>Descartadas:</b> Battle Master com besta (cobra um talento e não tem magias) e Patrulheiro Beast Master (não agradou).</li>
+        <li><b>Espécies em vista:</b> humano (talento extra), gnomo (vantagem em testes mentais), Genasi da Terra, aasimar, Hexblood, Shadar-kai, Owlin.</li>
+        <li>O Twilight Sanctuary e o Divine Smite radiante são as respostas mais fortes aos mortos-vivos; o Toll the Dead é necrótico e muitos deles resistem.</li>
+      </ul></section>
+      <section><h3>Regras da mesa</h3><ul>
+        <li>Começa no nível 1 e vai até o 10. Atributos por rolagem ou compra de pontos.</li>
+        <li>Valem todos os livros oficiais, de 2014 e de 2024. Nada de fãs ou de terceiros, o que tira o Blood Hunter.</li>
+        <li>Ravenloft: The Horrors Within (2026) é o livro mais próximo da campanha: patrono Undead, Hollow Warden, Feiticeiro das Sombras, quatro espécies e os Dark Gifts.</li>
+        <li>Multiclasse: testes de resistência e armadura pesada do guerreiro só vêm se ele for a primeira classe.</li>
+      </ul></section>
+      <section><h3>A party</h3><ul>
+        <li>Clérigo da Forja, Paladino da Vingança, Ladino, Artífice, Mago das Espadas, Bardo e Druida das Estrelas.</li>
+        <li>Sobram magia, cura e suporte. Faltam dano constante com arma, ataque à distância e um segundo tanque.</li>
+        <li>Perícias já cobertas: armadilhas, conhecimento arcano e religioso, natureza e conversa. Valem as que cada um rola por si: Percepção, Furtividade, Intuição e Atletismo ou Acrobacia.</li>
+        <li>O artífice pode fazer uma besta Repeating Shot, e a aura do paladino protege quem fica a 3 m dele a partir do nível 6.</li>
+      </ul></section>
+      <section><h3>Talentos em destaque</h3><ul>
+        <li><b>Alert:</b> soma o bônus de proficiência à iniciativa (+2, depois +3) e deixa trocar de lugar na ordem com um aliado. Serve em qualquer build.</li>
+        <li><b>Fey Touched</b> (nível 4 em diante): +1 em Inteligência, Sabedoria ou Carisma, Misty Step e uma magia de 1º círculo, cada uma grátis uma vez por dia e também com seus espaços. Ótimo para quem tem 17 no atributo principal.</li>
+        <li><b>Magic Initiate:</b> no 2024 você escolhe o atributo. Mago dá Shield; Druida dá Shillelagh com Carisma.</li>
+        <li><b>Lucky</b> e <b>Survivor</b> são as melhores defesas de talento contra o charme de Strahd.</li>
+        <li>O talento extra do humano é de origem e não aumenta atributo. Os Dark Gifts não podem ser pegos por ele.</li>
+      </ul></section>
+      <section><h3>Como os números são feitos</h3><ul>
+        <li>Conjunto padrão (15, 14, 13, 12, 10, 8) distribuído pela prioridade da build, com +2 e +1 do antecedente nos dois melhores atributos que ele permite.</li>
+        <li>O aumento de atributo arredonda o principal e põe o ponto que sobra no próximo atributo ímpar. Fey Touched e War Caster põem o +1 no atributo mental ímpar mais importante; Resilient e os talentos de besta e arco têm atributo fixo; Alert, Lucky e Tough não mudam atributos.</li>
+        <li>Dano esperado = dano médio vezes a chance de acertar a CA escolhida, sem críticos. Magias com teste assumem +2 no teste do inimigo.</li>
+        <li>Armadura: cota de escamas até o nível 4 e meia armadura a partir do 5 para quem usa média; cota de malha para quem usa pesada com Força 13.</li>
+        <li>Parte das regras veio de resumos públicos e parte de memória. Antes de fechar a ficha, confira no livro.</li>
+      </ul></section>
+      <section><h3>Perguntas para o Mestre</h3><ul>
+        <li>Experiência ou marcos?</li>
+        <li>O Clérigo do Crepúsculo está liberado?</li>
+        <li>Qual ficha do Strahd vale, a de 2016 ou a nova?</li>
+        <li>Quais perícias cada colega já pegou?</li>
+      </ul></section>
+      <section><h3>Documentos completos</h3><ul>
+        <li><a href="https://claude.ai/artifact/UnMo8Dpx28gQV3vRSxtXfZ">Classes, regras, party e ficha</a></li>
+        <li><a href="https://claude.ai/artifact/SLKsd1QLvpnMxRuqKhNeWs">Espécies e combinações</a></li>
+      </ul></section>
+    </div>
+  </section>
+</main>
+<script>
+/* ---------- regras e dados ---------- */
+const AB = ['str','dex','con','int','wis','cha'];
+const ABL = {str:'FOR',dex:'DES',con:'CON',int:'INT',wis:'SAB',cha:'CAR'};
+const MONSTER_SAVE = 2;
+const mod = x => Math.floor((x-10)/2);
+const pbOf = L => 2 + Math.floor((L-1)/4);
+const clamp = (x,a,b) => Math.max(a, Math.min(b, x));
+const diceAvg = s => { const [n,d] = s.split('d').map(Number); return n*(d+1)/2; };
+
+function terms(ts){
+  let dmg = 0, f = '';
+  for (const t of ts){
+    if (typeof t === 'number'){ if (t){ dmg += t; f += (t>0?'+':'−') + Math.abs(t); } }
+    else { dmg += diceAvg(t); f += (f?'+':'') + t; }
+  }
+  return {dmg, f};
+}
+const atk = (n, hit, ts) => { const t = terms(ts); return {k:'atk', n, hit, dmg:t.dmg, f:(n>1?n+' × ':'')+'('+t.f+')'}; };
+const rider = (n, hit, d) => ({k:'rider', n, hit, dmg:diceAvg(d), f:'+'+d});
+const save = (dc, ts, half, targets) => { const t = terms(ts); return {k:'save', dc, half:!!half, targets:targets||1, dmg:t.dmg, f:(targets>1?targets+' × ':'')+'('+t.f+')'}; };
+
+const medium = (c, shield) => {
+  const st = 12 + c.m.dex, md = (c.L>=5?15:14) + Math.min(c.m.dex,2);
+  const useMd = md > st;
+  return { v:(useMd?md:st)+(shield?2:0),
+    d:(useMd?(c.L>=5?'meia armadura':'cota de escamas'):'couro batido')+(shield?' + escudo':''),
+    stealth:useMd };
+};
+
+/* ---------- antecedentes ---------- */
+const BG = {
+  acolito:{n:'Acólito', ab:['int','wis','cha'], feat:'mi_cleric', sk:'Intuição, Religião'},
+  andarilho:{n:'Andarilho (Wayfarer)', ab:['dex','wis','cha'], feat:'lucky', sk:'Intuição, Furtividade'},
+  artesao:{n:'Artesão', ab:['str','dex','int'], feat:'crafter', sk:'Investigação, Persuasão'},
+  artista:{n:'Artista (Entertainer)', ab:['str','dex','cha'], feat:'musician', sk:'Acrobacia, Atuação'},
+  charlatao:{n:'Charlatão', ab:['dex','con','cha'], feat:'skilled', sk:'Enganação, Prestidigitação'},
+  criminoso:{n:'Criminoso', ab:['dex','con','int'], feat:'alert', sk:'Prestidigitação, Furtividade'},
+  eremita:{n:'Eremita', ab:['con','wis','cha'], feat:'healer', sk:'Medicina, Religião'},
+  escriba:{n:'Escriba', ab:['dex','int','wis'], feat:'skilled', sk:'Investigação, Percepção'},
+  fazendeiro:{n:'Fazendeiro', ab:['str','con','wis'], feat:'tough', sk:'Lidar com Animais, Natureza'},
+  guarda:{n:'Guarda', ab:['str','int','wis'], feat:'alert', sk:'Atletismo, Percepção'},
+  guia:{n:'Guia', ab:['dex','con','wis'], feat:'mi_druid', sk:'Furtividade, Sobrevivência'},
+  marinheiro:{n:'Marinheiro', ab:['str','dex','wis'], feat:'tavern', sk:'Acrobacia, Percepção'},
+  mercador:{n:'Mercador', ab:['con','int','cha'], feat:'lucky', sk:'Lidar com Animais, Persuasão'},
+  nobre:{n:'Nobre', ab:['str','int','cha'], feat:'skilled', sk:'História, Persuasão'},
+  sabio:{n:'Sábio', ab:['con','int','wis'], feat:'mi_wizard', sk:'Arcanismo, História'},
+  soldado:{n:'Soldado', ab:['str','dex','con'], feat:'savage', sk:'Atletismo, Intimidação'},
+  haunted:{n:'Haunted One (Ravenloft)', ab:['con','wis','cha'], feat:'survivor', sk:'Arcanismo, Sobrevivência'},
+  investigador:{n:'Investigador (Ravenloft)', ab:['int','wis','cha'], feat:'sharpeye', sk:'Intuição, Investigação'},
+  brumas:{n:'Andarilho das Brumas (Ravenloft)', ab:['dex','con','wis'], feat:'dg_mist', sk:'Sobrevivência, Furtividade'},
+  medium:{n:'Médium (Ravenloft)', ab:['con','int','wis'], feat:'dg_whispers', sk:'Intuição, Religião'}
+};
+
+/* ---------- talentos de origem ---------- */
+const OF = {
+  alert:{n:'Alert', t:'Soma o bônus de proficiência à iniciativa e pode trocar de iniciativa com um aliado.'},
+  lucky:{n:'Lucky', t:'Pontos de sorte iguais ao bônus de proficiência por descanso longo: vantagem num teste d20 seu ou desvantagem num ataque contra você.'},
+  tough:{n:'Tough', t:'+2 pontos de vida por nível.'},
+  mi_wizard:{n:'Magic Initiate (Mago)', t:'2 truques e 1 magia de mago com o atributo que você escolher. Destaque: Shield (reação, +5 de CA até seu próximo turno), 1x por dia de graça e depois com seus espaços.'},
+  mi_cleric:{n:'Magic Initiate (Clérigo)', t:'2 truques e 1 magia de clérigo. Destaques: Sacred Flame (dano radiante), Guidance, Bless ou Healing Word.'},
+  mi_druid:{n:'Magic Initiate (Druida)', t:'2 truques e 1 magia de druida. Destaque: Shillelagh, que faz o bordão atacar com o atributo de conjuração escolhido (1d8; 1d10 no nível 5).'},
+  skilled:{n:'Skilled', t:'Proficiência em 3 perícias ou ferramentas.'},
+  savage:{n:'Savage Attacker', t:'Uma vez por turno, rola o dano da arma duas vezes e fica com o melhor.'},
+  healer:{n:'Healer', t:'Cura com kit de primeiros socorros gastando um dado de vida do aliado; rerrola 1 nos dados de cura.'},
+  musician:{n:'Musician', t:'Após descansar, dá Inspiração Heroica a aliados (quantidade igual ao bônus de proficiência).'},
+  tavern:{n:'Tavern Brawler', t:'Soco de 1d4 + FOR, rerrola 1 no dano e empurra 1,5 m uma vez por turno.'},
+  crafter:{n:'Crafter', t:'3 ferramentas de artesão, 20% de desconto em itens comuns e fabricação rápida.'},
+  survivor:{n:'Survivor', t:'Rerrola iniciativa de 9 ou menos. 1x por descanso longo, soma o bônus de proficiência a um teste falho contra Enfeitiçado ou Amedrontado.'},
+  sharpeye:{n:'Sharp Eye', t:'Vantagem em Procurar ou Estudar, PB vezes por descanso longo (só gasta se der certo).'},
+  dg_mist:{n:'Dark Gift: Mist Walker', t:'Teleporte de 4,5 m como reação ao sofrer dano (usos limitados). Descanso curto perto do centro de um domínio pode não dar benefício.', gift:true},
+  dg_whispers:{n:'Dark Gift: Gathered Whispers', t:'Truque Message, Augury grátis 1x por dia e reação para somar o PB à CA. No 1 natural, pode ficar surdo.', gift:true}
+};
+const HUMAN_FEATS = ['alert','lucky','mi_wizard','mi_druid','mi_cleric','tough','skilled','savage','survivor','sharpeye','healer','musician'];
+
+/* ---------- escolhas do nível 4 em diante ---------- */
+const GF = {
+  asi:{n:'Aumento de atributo (+2)'},
+  fey:{n:'Fey Touched', plus:'cast', t:'+1 no atributo mental. Misty Step e 1 magia de 1º círculo de adivinhação ou encantamento (Silvery Barbs, Bless, Command, Dissonant Whispers), cada uma 1x por dia de graça e também com seus espaços, inclusive os de pacto.'},
+  warcaster:{n:'War Caster', plus:'cast', t:'+1 no atributo mental. Vantagem nos testes de concentração, magia como ataque de oportunidade e gestos com as mãos ocupadas.'},
+  res_con:{n:'Resilient (Constituição)', plus:'con', prof:'con', t:'+1 CON e proficiência no teste de resistência de Constituição.'},
+  res_wis:{n:'Resilient (Sabedoria)', plus:'wis', prof:'wis', t:'+1 SAB e proficiência no teste de resistência de Sabedoria.'},
+  xbow:{n:'Crossbow Expert', plus:'dex', t:'+1 DES. Ignora a recarga das bestas e não tem desvantagem atirando em corpo a corpo.'},
+  sharp:{n:'Sharpshooter', plus:'dex', t:'+1 DES. Ignora meia cobertura e três quartos; sem desvantagem em alcance longo.'},
+  alert:{n:'Alert (talento de origem)'},
+  lucky:{n:'Lucky (talento de origem)'},
+  tough:{n:'Tough (talento de origem)'}
+};
+
+/* ---------- espécies ---------- */
+const SP = {
+  humano:{n:'Humano', src:'PHB 2024', dv:0, extraFeat:true, t:'Talento de origem extra, +1 perícia e Inspiração Heroica a cada descanso longo.'},
+  gnomo:{n:'Gnomo', src:'PHB 2024', dv:18, adv:['int','wis','cha'], t:'Vantagem em todos os testes de resistência de INT, SAB e CAR. Linhagem da floresta (Minor Illusion, Speak with Animals) ou das rochas.'},
+  aasimar:{n:'Aasimar', src:'PHB 2024', dv:18, t:'Resistência a dano necrótico e radiante, Healing Hands e, no nível 3, uma transformação de 1 minuto com dano extra igual ao PB uma vez por turno.'},
+  elfo:{n:'Elfo', src:'PHB 2024', dv:18, advCharm:true, t:'Vantagem contra Enfeitiçado, uma perícia (Intuição, Percepção ou Sobrevivência) e magias da linhagem. Drow enxerga a 36 m.'},
+  anao:{n:'Anão', src:'PHB 2024', dv:36, hp:1, t:'+1 PV por nível, resistência a veneno e sentido sísmico.'},
+  orc:{n:'Orc', src:'PHB 2024', dv:36, t:'Disparada de ação bônus com PV temporários; fica com 1 PV em vez de cair, 1x por descanso longo.'},
+  halfling:{n:'Halfling', src:'PHB 2024', dv:0, t:'Rerrola 1 natural em testes d20 e tem vantagem contra Amedrontado.'},
+  tiefling:{n:'Tiefling', src:'PHB 2024', dv:18, t:'Legado ctônico: resistência necrótica, Chill Touch e False Life. Infernal: resistência a fogo e Darkness.'},
+  golias:{n:'Golias', src:'PHB 2024', dv:0, t:'Poder de gigante (teleporte, dano extra, derrubar ou reduzir dano), PB vezes por descanso longo. Deslocamento 10,5 m.'},
+  draconato:{n:'Draconato', src:'PHB 2024', dv:18, t:'Sopro no lugar de um ataque, resistência a um tipo de dano e asas no nível 5.'},
+  dhampir:{n:'Dhampir', src:'Horrors Within', dv:18, dvq:true, t:'Resistência necrótica, escalada (paredes e teto no nível 3) e mordida de 1d4 + CON que cura você.'},
+  hexblood:{n:'Hexblood', src:'Horrors Within', dv:18, dvq:true, t:'Amuleto para mensagens ou espionagem a até 16 km. Disguise Self e Hex sempre preparadas, 1x cada por dia de graça.'},
+  lupin:{n:'Lupin', src:'Horrors Within', dv:18, dvq:true, t:'Uivo (ação bônus): inimigos a 4,5 m fazem teste de SAB ou têm desvantagem em ataques e testes de resistência. Golpes desarmados que derrubam.'},
+  reborn:{n:'Reborn', src:'Horrors Within', dv:18, dvq:true, t:'Resistência a frio, necrótico ou veneno, vantagem em testes contra a morte, descanso longo em 4 horas e +1d6 em testes de atributo falhos.'},
+  shadarkai:{n:'Shadar-kai', src:'Monsters of the Multiverse', dv:18, advCharm:true, t:'Resistência necrótica, vantagem contra Enfeitiçado e teleporte de 9 m como ação bônus; no nível 3, o teleporte dá resistência a todo dano por 1 turno.'},
+  githzerai:{n:'Githzerai', src:'Monsters of the Multiverse', dv:0, advCharm:true, t:'Vantagem contra Enfeitiçado e Amedrontado, resistência psíquica, Mage Hand, Shield (nível 3) e Detect Thoughts (nível 5).'},
+  owlin:{n:'Owlin', src:'Strixhaven', dv:36, t:'Voo desde o nível 1 (sem armadura média ou pesada) e proficiência em Furtividade.'},
+  genasi_terra:{n:'Genasi da Terra', src:'Monsters of the Multiverse', dv:18, t:'Blade Ward como ação bônus (PB vezes por dia), ignora terreno difícil de pedra e Pass without Trace no nível 5.'},
+  genasi_fogo:{n:'Genasi do Fogo', src:'Monsters of the Multiverse', dv:18, t:'Resistência a fogo, Produce Flame, Burning Hands (nível 3) e Flame Blade (nível 5).'},
+  yuanti:{n:'Yuan-ti', src:'Monsters of the Multiverse', dv:18, t:'Vantagem em testes de resistência contra magias, resistência a veneno e Suggestion no nível 3.'},
+  satiro:{n:'Sátiro', src:'Monsters of the Multiverse', dv:0, t:'Tipo Fada (imune a efeitos que só afetam humanoides), vantagem contra magias, deslocamento 10,5 m.'},
+  kalashtar:{n:'Kalashtar', src:'Eberron', dv:0, adv:['wis'], t:'Vantagem em todos os testes de resistência de Sabedoria, resistência psíquica e telepatia.'},
+  harengon:{n:'Harengon', src:'Monsters of the Multiverse', dv:0, initPB:true, t:'Soma o PB à iniciativa, proficiência em Percepção e salto de reação para escapar.'},
+  duergar:{n:'Duergar', src:'Monsters of the Multiverse', dv:36, advCharm:true, t:'Vantagem contra Enfeitiçado, resistência a veneno, Enlarge/Reduce e Invisibility.'},
+  bugbear:{n:'Bugbear', src:'Monsters of the Multiverse', dv:18, t:'+2d6 no primeiro acerto contra quem ainda não agiu, alcance maior e furtividade.'},
+  warforged:{n:'Warforged', src:'Forge of the Artificer', dv:0, ac:1, t:'+1 de CA, resistência a veneno e não dorme.'}
+};
+
+/* ---------- builds ---------- */
+const BUILDS = {
+  fwl:{
+    n:'Guerreiro 1 → Bruxo', ep:'O Cavaleiro do Pacto', tag:'finalista',
+    sum:'Tanque arcano: armadura pesada, arma do pacto com Carisma e Eldritch Blast de reserva.',
+    base:{str:13,dex:12,con:14,int:8,wis:10,cha:15}, prio:['cha','con','str','dex','wis','int'], cast:'cha',
+    defBg:'haunted', saves:['str','con'], asiLv:[5,9], conc:true,
+    variants:[{id:'defense',n:'Estilo Defense (+1 CA)'},{id:'dueling',n:'Estilo Dueling (+2 dano)'}],
+    hd:L=>[10,...Array(L-1).fill(8)],
+    ac:c=>({v:18+(c.v==='defense'?1:0), d:'cota de malha + escudo'+(c.v==='defense'?' + Defense':''), stealth:true,
+      extra:c.L>=2?`Armor of Agathys: +${5*Math.min(5,Math.ceil((c.L-1)/2))} PV temporários, sem concentração`:''}),
+    dark:(c,dv)=>c.L>=3?{v:Math.max(dv,36),d:"Devil's Sight: enxerga também em escuridão mágica"}:{v:dv},
+    routines(c){
+      const du=c.v==='dueling'?2:0;
+      if(c.L===1) return [{n:'Espada longa (ainda com Força)',tier:0,parts:[atk(1,c.pb+c.m.str,['1d8',c.m.str+du])]}];
+      const hit=c.pb+c.m.cha, n=c.L>=6?2:1, slot=Math.min(5,Math.ceil((c.L-1)/2));
+      const w=atk(n,hit,['1d8',c.m.cha+du]);
+      const out=[{n:'Arma do pacto (espada longa)',tier:0,parts:[w]}];
+      if(c.L===5) out.push({n:'True Strike com a arma do pacto',tier:0,parts:[atk(1,hit,['1d8',c.m.cha+du,'1d6'])],note:'Vale até o Extra Attack chegar no nível 6.'});
+      out.push({n:'Arma do pacto + Hex',tier:1,parts:[atk(n,hit,['1d8',c.m.cha+du,'1d6'])]});
+      if(c.L>=6) out.push({n:'Arma do pacto + Eldritch Smite',tier:2,parts:[w,rider(n,hit,(slot+1)+'d8')],note:'Gasta um espaço de pacto e derruba o alvo.'});
+      const eb=atk(c.L>=5?2:1,hit,['1d10',c.L>=3?c.m.cha:0]);
+      out.push({n:'Eldritch Blast (à distância)',tier:0,parts:[eb]});
+      return out;
+    },
+    feats:[[1,'Guerreiro: armadura pesada, escudo, estilo de luta, Weapon Mastery, Second Wind, testes de FOR e CON'],
+      [2,'Bruxo 1: Pact of the Blade (ataque com Carisma), Eldritch Blast, Armor of Agathys'],
+      [3,"Agonizing Blast e Devil's Sight; Magical Cunning; 2 espaços de pacto"],
+      [4,'Patrono (Celestial ou Undead); espaços de 2º círculo'],
+      [5,'Talento ou aumento de atributo; Eldritch Blast com 2 raios'],
+      [6,'Thirsting Blade (Extra Attack) e Eldritch Smite; espaços de 3º círculo'],
+      [7,'Característica do patrono'],[8,'Espaços de 4º círculo'],
+      [9,'Talento ou aumento de atributo'],[10,'Lifedrinker; espaços de 5º círculo']],
+    pros:'Melhor CA e concentração entre quem ataca com arma. Luta de perto e de longe. Espaços voltam em descanso curto.',
+    cons:'Sem proficiência em Sabedoria. Nível 1 fraco. Só 2 espaços de magia por descanso curto.'
+  },
+  valor:{
+    n:'Bardo do Valor', ep:'O Trovador de Guerra', tag:'finalista',
+    sum:'Conjurador completo com armadura média, perícias e, no nível 6, ataque mais truque no mesmo turno.',
+    base:{str:8,dex:14,con:13,int:10,wis:12,cha:15}, prio:['cha','dex','con','wis','int','str'], cast:'cha',
+    defBg:'artista', saves:['dex','cha'], asiLv:[4,8], conc:true,
+    variants:[{id:'melee',n:'Rapieira + escudo'},{id:'staff',n:'Bordão com Shillelagh + escudo'},{id:'arco',n:'Arco longo'}],
+    cc:c=>c.L>=7,
+    hd:L=>Array(L).fill(8),
+    ac:c=>c.L<3?{v:12+c.m.dex,d:'couro batido'}:medium(c,c.v!=='arco'),
+    init:c=>c.L>=2?Math.floor(c.pb/2):0,
+    routines(c){
+      const sh=c.has('mi_druid')&&c.v==='staff', melee=c.v!=='arco';
+      const hitC=c.pb+c.m.cha, hitD=c.pb+c.m.dex, cd=c.L>=5?['1d6']:[];
+      let wn, wd;
+      if(sh){ wn='bordão com Shillelagh'; wd=c.L>=5?'1d10':'1d8'; }
+      else if(c.L<3){ wn=melee?'maça':'besta leve'; wd=melee?'1d6':'1d8'; }
+      else { wn=melee?'rapieira':'arco longo'; wd='1d8'; }
+      const ts=atk(1,hitC,[wd,c.m.cha,...cd]);
+      const out=[{n:`True Strike (${wn})`,tier:0,parts:[ts],note:'Todo o dano pode ser radiante.'}];
+      if(c.L>=6){ const w=sh?atk(1,hitC,[wd,c.m.cha]):atk(1,hitD,[wd,c.m.dex]); out.push({n:`Ataque + True Strike (${wn})`,tier:0,parts:[w,ts]}); }
+      return out;
+    },
+    feats:[[1,'Inspiração Bárdica (d6), magias de bardo, True Strike'],[2,'Expertise em 2 perícias; Jack of All Trades (vale para iniciativa)'],
+      [3,'Valor: armadura média, escudo, armas marciais; Combat Inspiration; magias de 2º círculo (Mirror Image)'],
+      [4,'Talento ou aumento de atributo'],[5,'Magias de 3º círculo (Hypnotic Pattern, Slow); Inspiração volta em descanso curto e vira d8; True Strike +1d6 radiante'],
+      [6,'Extra Attack, podendo trocar um ataque por um truque'],[7,'Countercharm (reação: rerrola com vantagem um teste falho contra Enfeitiçado ou Amedrontado, seu ou de um aliado a 9 m); magias de 4º círculo'],
+      [8,'Talento ou aumento de atributo'],[9,'Expertise em mais 2 perícias; magias de 5º círculo'],[10,'Magical Secrets; Inspiração vira d10']],
+    pros:'Mais magias e perícias de todas as opções. CA alta com escudo. Dano radiante com True Strike.',
+    cons:'Sabedoria e Constituição fracas nos testes. A party já tem um bardo. Dano modesto até o nível 6.'
+  },
+  pal:{
+    n:'Paladino (Watchers)', ep:'O Vigia', tag:'finalista',
+    sum:'Extra Attack no 5 e Aura of Protection no 6, com Divine Smite radiante contra mortos-vivos.',
+    base:{str:15,dex:10,con:13,int:8,wis:12,cha:14}, prio:['str','cha','con','wis','dex','int'], cast:'cha',
+    defBg:'nobre', saves:['wis','cha'], asiLv:[4,8], conc:true,
+    variants:[{id:'dueling',n:'Estilo Dueling (+2 dano)'},{id:'defense',n:'Estilo Defense (+1 CA)'}],
+    hd:L=>Array(L).fill(10),
+    ac:c=>({v:(c.L>=5?19:18)+(c.v==='defense'?1:0), d:(c.L>=5?'cota de talas':'cota de malha')+' + escudo'+(c.v==='defense'?' + Defense':''), stealth:true}),
+    saveBonus:c=>c.L>=6?Math.max(1,c.m.cha):0, saveBonusName:'Aura of Protection',
+    routines(c){
+      const du=c.v==='dueling'?2:0, hit=c.pb+c.m.str, n=c.L>=5?2:1;
+      const w=atk(n,hit,['1d8',c.m.str+du]);
+      const out=[{n:'Espada longa',tier:0,parts:[w]}];
+      if(c.L>=2){
+        out.push({n:'Espada longa + Divine Smite',tier:2,parts:[w,rider(n,hit,'2d8')],note:'Espaço de 1º círculo; dano radiante.'});
+        out.push({n:'… contra morto-vivo',tier:2,parts:[w,rider(n,hit,'3d8')]});
+      }
+      return out;
+    },
+    feats:[[1,'Armadura pesada, escudo, Lay on Hands, Weapon Mastery, magias de paladino'],[2,'Estilo de luta e Divine Smite'],
+      [3,"Juramento Watchers: Watcher's Will dá vantagem em testes de INT, SAB e CAR a você e aliados por 1 minuto"],
+      [4,'Talento ou aumento de atributo'],[5,'Extra Attack; magias de 2º círculo'],
+      [6,'Aura of Protection: + Carisma em todos os testes de resistência, seus e de aliados a até 3 m'],
+      [7,'Aura of the Sentinel: + PB na iniciativa de quem está na aura'],[8,'Talento ou aumento de atributo'],
+      [9,'Abjure Foes; magias de 3º círculo'],[10,'Aura of Courage: imune a Amedrontado']],
+    pros:'O mais forte nos níveis 5 e 6. Melhores testes de resistência do jogo a partir do 6. Dano radiante.',
+    cons:'A party já tem um paladino. Poucos espaços de magia. Quase sem ataque à distância.'
+  },
+  twi:{
+    n:'Clérigo do Crepúsculo', ep:'O Guardião do Crepúsculo', tag:'em análise',
+    sum:'Conjurador completo de armadura pesada, com Twilight Sanctuary e Spirit Guardians.',
+    base:{str:13,dex:12,con:14,int:8,wis:15,cha:10}, prio:['wis','con','str','dex','cha','int'], cast:'wis',
+    defBg:'eremita', saves:['wis','cha'], asiLv:[4,8], conc:true,
+    variants:[{id:'flame',n:'Sacred Flame (radiante)'},{id:'toll',n:'Toll the Dead (necrótico)'}],
+    hd:L=>Array(L).fill(8),
+    ac:c=>({v:18, d:'cota de malha + escudo (ordem Protector)', stealth:true, extra:c.L>=3?`Twilight Sanctuary: ${c.L+3},5 PV temporários por turno para quem está na esfera`:''}),
+    dark:(c,dv)=>c.L>=3?{v:90,d:'Eyes of Night'}:{v:dv},
+    routines(c){
+      const dc=8+c.pb+c.m.wis, hit=c.pb+c.m.wis, t=c.L>=5?2:1, toll=c.v==='toll';
+      const ct=save(dc,[t+(toll?'d12':'d8'),c.L>=7?c.m.wis:0]);
+      const cn=toll?'Toll the Dead':'Sacred Flame';
+      const out=[{n:cn,tier:0,parts:[ct],note:toll?'Dano necrótico: muitos mortos-vivos resistem.':''}];
+      out.push({n:'Guiding Bolt',tier:2,parts:[atk(1,hit,['4d6'])],note:'Espaço de 1º círculo; radiante.'});
+      if(c.L>=3&&c.L<5) out.push({n:cn+' + Spiritual Weapon',tier:1,parts:[ct,atk(1,hit,['1d8',c.m.wis])]});
+      if(c.L>=5){
+        out.push({n:'Spirit Guardians (1 inimigo) + '+cn,tier:1,parts:[save(dc,['3d8'],true),ct],note:'Radiante; metade do dano se o inimigo passar.'});
+        out.push({n:'Spirit Guardians (3 inimigos) + '+cn,tier:1,multi:true,parts:[save(dc,['3d8'],true,3),ct]});
+      }
+      return out;
+    },
+    feats:[[1,'Ordem Protector: armadura pesada e armas marciais; magias de clérigo'],[2,'Canalizar Divindade: Divine Spark e Turn Undead'],
+      [3,'Crepúsculo: visão no escuro de 90 m, Vigilant Blessing e Twilight Sanctuary (PV temporários ou fim de charme e medo)'],
+      [4,'Talento ou aumento de atributo'],[5,'Spirit Guardians e Revivify; Sear Undead'],
+      [6,'Steps of Night: voo no escuro; 3 usos de Canalizar Divindade'],[7,'Blessed Strikes: + Sabedoria no dano dos truques'],
+      [8,'Talento ou aumento de atributo'],[9,'Magias de 5º círculo'],[10,'Divine Intervention']],
+    pros:'CA 18 e Sabedoria alta desde cedo. Domina os níveis 3 a 6. Dano radiante em área.',
+    cons:'Segundo clérigo da party e mais suporte. Muitos Mestres vetam. Luta com magias, não com arma.'
+  },
+  gloom:{
+    n:'Patrulheiro Gloom Stalker', ep:'O Caçador nas Brumas', tag:'em análise',
+    sum:'Arqueiro que age primeiro, some no escuro e não precisa de talento nenhum.',
+    base:{str:8,dex:15,con:13,int:10,wis:14,cha:12}, prio:['dex','wis','con','cha','int','str'], cast:'wis',
+    defBg:'andarilho', saves:['str','dex'], asiLv:[4,8], conc:true,
+    hd:L=>Array(L).fill(10),
+    ac:c=>medium(c,false),
+    init:c=>c.L>=3?c.m.wis:0,
+    tweak:(c,sp)=>{ if(c.L>=7) sp.add('wis'); },
+    dark:(c,dv)=>c.L>=3?{v:dv?dv+18:18,d:'Umbral Sight: invisível para quem depende de visão no escuro'}:{v:dv},
+    routines(c){
+      const hit=c.pb+c.m.dex+(c.L>=2?2:0), n=c.L>=5?2:1;
+      const hm=atk(n,hit,['1d8',c.m.dex,'1d6']);
+      const out=[{n:'Arco longo',tier:0,parts:[atk(n,hit,['1d8',c.m.dex])]},{n:"Arco longo + Hunter's Mark",tier:1,parts:[hm]}];
+      if(c.L>=3) out.push({n:'… + Dreadful Strike',tier:2,parts:[hm,rider(n,hit,'2d6')],note:`${Math.max(1,c.m.wis)} usos por descanso longo.`});
+      return out;
+    },
+    feats:[[1,"Hunter's Mark grátis 2x por dia, Weapon Mastery, magias de patrulheiro"],[2,'Estilo Archery (+2), Expertise em 1 perícia'],
+      [3,'Gloom Stalker: Dreadful Strike (+2d6 psíquico), + Sabedoria na iniciativa, Umbral Sight'],
+      [4,'Talento ou aumento de atributo'],[5,'Extra Attack; magias de 2º círculo (Pass without Trace)'],
+      [6,'Roving: +3 m de deslocamento, escalada e natação'],[7,'Iron Mind: proficiência em testes de Sabedoria'],
+      [8,'Talento ou aumento de atributo'],[9,'Expertise em mais 2 perícias; magias de 3º círculo'],[10,'Tireless']],
+    pros:'Melhor dano à distância com arma. Cobre exploração e furtividade. Nenhum talento obrigatório.',
+    cons:"Hunter's Mark prende a concentração. Poucos espaços de magia. Sabedoria só melhora no 7."
+  },
+  lock:{
+    n:'Bruxo (Eldritch Blast)', ep:'O Ocultista', tag:'em análise',
+    sum:'Dano à distância gratuito e a classe mais personalizável, com espaços que voltam em descanso curto.',
+    base:{str:8,dex:13,con:14,int:10,wis:12,cha:15}, prio:['cha','con','dex','wis','int','str'], cast:'cha',
+    defBg:'charlatao', saves:['wis','cha'], asiLv:[4,8], conc:true,
+    hd:L=>Array(L).fill(8),
+    ac:c=>({v:13+c.m.dex,d:'Armor of Shadows (Mage Armor à vontade)'}),
+    dark:(c,dv)=>c.L>=2?{v:Math.max(dv,36),d:"Devil's Sight: enxerga também em escuridão mágica"}:{v:dv},
+    routines(c){
+      const hit=c.pb+c.m.cha, n=c.L>=5?2:1, b=c.L>=2?c.m.cha:0;
+      return [{n:'Eldritch Blast',tier:0,parts:[atk(n,hit,['1d10',b])],note:c.L>=2?'Com Repelling Blast, cada raio empurra 3 m.':''},
+        {n:'Eldritch Blast + Hex',tier:1,parts:[atk(n,hit,['1d10',b,'1d6'])]}];
+    },
+    feats:[[1,'Eldritch Blast, Armor of Shadows, magias de pacto'],[2,"Agonizing Blast e Devil's Sight; Magical Cunning"],
+      [3,'Patrono (Celestial, Undead, Great Old One); espaços de 2º círculo'],[4,'Talento ou aumento de atributo'],
+      [5,'Eldritch Blast com 2 raios; espaços de 3º círculo; 5 invocações'],[6,'Característica do patrono'],
+      [7,'Espaços de 4º círculo; Whispers of the Grave'],[8,'Talento ou aumento de atributo'],
+      [9,'Espaços de 5º círculo; Contact Patron'],[10,'Característica do patrono']],
+    pros:'Dano constante sem gastar nada. Proficiência em Sabedoria. Gancho forte com Barovia.',
+    cons:'CA baixa e d8 de vida: não serve para o corpo a corpo. Mais um conjurador na party.'
+  },
+  swords:{
+    n:'Bardo das Espadas', ep:'O Duelista', tag:'em análise',
+    sum:'Bardo que gasta a Inspiração em si mesmo, com floreios de dano, defesa e mobilidade.',
+    base:{str:8,dex:14,con:13,int:10,wis:12,cha:15}, prio:['cha','dex','con','wis','int','str'], cast:'cha',
+    defBg:'artista', saves:['dex','cha'], asiLv:[4,8], conc:true,
+    variants:[{id:'melee',n:'Cimitarra (Dueling)'},{id:'staff',n:'Bordão com Shillelagh (Dueling)'},{id:'arco',n:'Arco curto'}],
+    cc:c=>c.L>=7,
+    hd:L=>Array(L).fill(8),
+    ac:c=>c.L<3?{v:12+c.m.dex,d:'couro batido'}:Object.assign(medium(c,false),{extra:'Defensive Flourish soma o dado de Inspiração à CA por 1 turno'}),
+    init:c=>c.L>=2?Math.floor(c.pb/2):0,
+    routines(c){
+      const melee=c.v!=='arco', sh=c.has('mi_druid')&&c.v==='staff';
+      const hitC=c.pb+c.m.cha, hitD=c.pb+c.m.dex, cd=c.L>=5?['1d6']:[];
+      const sd=sh?(c.L>=5?'1d10':'1d8'):'1d8';
+      if(c.L<3){
+        const wd=sh?sd:(melee?'1d6':'1d8');
+        return [{n:`True Strike (${sh?'bordão com Shillelagh':melee?'maça':'besta leve'})`,tier:0,parts:[atk(1,hitC,[wd,c.m.cha,...cd])]}];
+      }
+      const n=c.L>=6?2:1, du=melee?2:0, fd=c.L>=10?'1d10':c.L>=5?'1d8':'1d6';
+      const wn=sh?'Bordão com Shillelagh':melee?'Cimitarra':'Arco curto';
+      const hit=sh?hitC:hitD, st=sh?c.m.cha:c.m.dex, wd=sh?sd:'1d6';
+      const w=atk(n,hit,[wd,st+du]);
+      return [{n:wn,tier:0,parts:[w]},
+        {n:wn+' + Blade Flourish',tier:2,parts:[w,rider(n,hit,fd)],note:'Gasta uma Inspiração Bárdica.'},
+        {n:'True Strike',tier:0,parts:[atk(1,hitC,[wd,c.m.cha+du,...cd])],note:'É uma magia: não ativa o floreio.'}];
+    },
+    feats:[[1,'Inspiração Bárdica (d6), magias de bardo, True Strike'],[2,'Expertise em 2 perícias; Jack of All Trades'],
+      [3,'Espadas: armadura média, cimitarra, estilo Dueling e Blade Flourish; magias de 2º círculo'],
+      [4,'Talento ou aumento de atributo'],[5,'Magias de 3º círculo; Inspiração volta em descanso curto e vira d8'],
+      [6,'Extra Attack'],[7,'Countercharm (reação: rerrola com vantagem um teste falho contra Enfeitiçado ou Amedrontado, seu ou de um aliado a 9 m); magias de 4º círculo'],[8,'Talento ou aumento de atributo'],
+      [9,'Expertise em mais 2 perícias'],[10,'Magical Secrets; Inspiração vira d10']],
+    pros:'Conjurador completo que luta de perto ou com arco. Bom dano no nível 6 com floreios.',
+    cons:'Sem escudo. Depende de Destreza e Carisma, a menos que use Shillelagh. Floreios gastam Inspiração.'
+  },
+  fval:{
+    n:'Guerreiro 1 → Bardo do Valor', ep:'O Bardo de Ferro', tag:'em análise',
+    sum:'Bardo do Valor com armadura pesada e proficiência em Constituição, um nível atrasado.',
+    base:{str:13,dex:12,con:14,int:8,wis:10,cha:15}, prio:['cha','con','str','dex','wis','int'], cast:'cha',
+    defBg:'haunted', saves:['str','con'], asiLv:[5,9], conc:true,
+    variants:[{id:'defense',n:'Estilo Defense (+1 CA)'},{id:'dueling',n:'Estilo Dueling (+2 dano)'}],
+    cc:c=>c.L>=8,
+    hd:L=>[10,...Array(L-1).fill(8)],
+    ac:c=>({v:18+(c.v==='defense'?1:0), d:'cota de malha + escudo'+(c.v==='defense'?' + Defense':''), stealth:true}),
+    init:c=>c.L>=3?Math.floor(c.pb/2):0,
+    routines(c){
+      const du=c.v==='dueling'?2:0, sh=c.has('mi_druid');
+      const hitS=c.pb+c.m.str, hitC=c.pb+c.m.cha;
+      if(c.L===1) return sh ? [{n:'Bordão com Shillelagh',tier:0,parts:[atk(1,hitC,['1d8',c.m.cha+du])]}]
+        : [{n:'Espada longa (ainda com Força)',tier:0,parts:[atk(1,hitS,['1d8',c.m.str+du])]}];
+      const wd=sh?(c.L>=5?'1d10':'1d8'):'1d8', wn=sh?'bordão com Shillelagh':'espada longa', cd=c.L>=5?['1d6']:[];
+      const ts=atk(1,hitC,[wd,c.m.cha+du,...cd]);
+      const out=[{n:`True Strike (${wn})`,tier:0,parts:[ts]}];
+      if(c.L>=7){ const w=sh?atk(1,hitC,[wd,c.m.cha+du]):atk(1,hitS,['1d8',c.m.str+du]); out.push({n:`Ataque + True Strike (${wn})`,tier:0,parts:[w,ts]}); }
+      return out;
+    },
+    feats:[[1,'Guerreiro: armadura pesada, escudo, estilo de luta, Weapon Mastery, Second Wind, testes de FOR e CON'],
+      [2,'Bardo 1: Inspiração Bárdica, magias de bardo, True Strike'],[3,'Expertise em 2 perícias; Jack of All Trades'],
+      [4,'Valor: Combat Inspiration; magias de 2º círculo'],[5,'Talento ou aumento de atributo; True Strike +1d6 radiante'],
+      [6,'Magias de 3º círculo (Hypnotic Pattern, Slow)'],[7,'Extra Attack, podendo trocar um ataque por um truque'],
+      [8,'Countercharm (reação: rerrola com vantagem um teste falho contra Enfeitiçado ou Amedrontado); magias de 4º círculo'],[9,'Talento ou aumento de atributo'],[10,'Expertise em mais 2 perícias; magias de 5º círculo']],
+    pros:'CA 19 desde o nível 1 e concentração firme, com todas as magias do bardo.',
+    cons:'Extra Attack só no nível 7. Perde os testes de Destreza e Carisma. Sabedoria fraca.'
+  },
+  shadow:{
+    n:'Feiticeiro das Sombras', ep:'A Sombra', tag:'pouco explorada',
+    sum:'Conjurador completo com proficiência em Constituição, que enxerga no escuro e resiste a cair.',
+    base:{str:8,dex:13,con:14,int:10,wis:12,cha:15}, prio:['cha','con','dex','wis','int','str'], cast:'cha',
+    defBg:'mercador', saves:['con','cha'], asiLv:[4,8], conc:true,
+    hd:L=>Array(L).fill(6),
+    ac:c=>({v:13+c.m.dex,d:'Mage Armor (gasta um espaço de 1º círculo)'}),
+    dark:(c,dv)=>c.L>=3?{v:Math.max(dv,36),d:'Eyes of the Dark'}:{v:dv},
+    routines(c){
+      const hit=c.pb+c.m.cha, dc=8+c.pb+c.m.cha, t=c.L>=5?2:1;
+      const out=[{n:'Fire Bolt',tier:0,parts:[atk(1,hit,[t+'d10'])]}];
+      if(c.L>=3) out.push({n:'Scorching Ray',tier:2,parts:[atk(3,hit,['2d6'])],note:'Espaço de 2º círculo.'});
+      if(c.L>=5){
+        out.push({n:'Fireball (1 alvo)',tier:2,parts:[save(dc,['8d6'],true)],note:'Espaço de 3º círculo; metade se o alvo passar.'});
+        out.push({n:'Fireball (3 alvos)',tier:2,multi:true,parts:[save(dc,['8d6'],true,3)]});
+      }
+      return out;
+    },
+    feats:[[1,'Innate Sorcery (vantagem nos ataques de magia por 1 minuto, 2x por dia)'],[2,'Font of Magic e Metamagic'],
+      [3,'Sombras: visão no escuro de 36 m, Darkness que você enxerga, Strength of the Grave'],[4,'Talento ou aumento de atributo'],
+      [5,'Magias de 3º círculo (Fireball); Sorcerous Restoration'],[6,'Invoca uma besta das sombras sem espaço e sem concentração'],
+      [7,'Sorcery Incarnate; magias de 4º círculo'],[8,'Talento ou aumento de atributo'],[9,'Magias de 5º círculo'],[10,'Mais uma opção de Metamagic']],
+    pros:'Maior dano em área. Concentração firme. Difícil de derrubar de vez.',
+    cons:'Frágil: d6 de vida e sem armadura. Mais um conjurador puro. Pouco analisada até aqui.'
+  },
+  bm:{
+    n:'Guerreiro Battle Master', ep:'O Besteiro', tag:'descartada',
+    sum:'Atirador tático sem magias, com manobras que derrubam, empurram e amedrontam.',
+    base:{str:8,dex:15,con:14,int:10,wis:13,cha:12}, prio:['dex','con','wis','cha','int','str'], cast:'wis',
+    defBg:'soldado', saves:['str','con'], asiLv:[4,6,8],
+    variants:[{id:'besta',n:'Besta pesada'},{id:'rep',n:'Besta Repeating Shot (do artífice)'},{id:'arco',n:'Arco longo'}],
+    hd:L=>Array(L).fill(10),
+    ac:c=>medium(c,false),
+    routines(c){
+      const rep=c.v==='rep'?1:0, bow=c.v==='arco';
+      const hit=c.pb+c.m.dex+2+rep, multi=bow||rep||c.has('xbow');
+      const n=c.L>=5&&multi?2:1, die=bow?'1d8':'1d10', wn=bow?'Arco longo':'Besta pesada';
+      const w=atk(n,hit,[die,c.m.dex+rep]);
+      const out=[{n:wn,tier:0,parts:[w],note:c.L>=5&&!multi?'Sem Crossbow Expert, a recarga limita a 1 tiro por turno.':''}];
+      if(c.L>=3){ const sd=c.L>=10?'1d10':'1d8';
+        out.push({n:wn+' + manobra',tier:2,parts:[w,rider(n,hit,sd)],note:'Gasta um dado de superioridade (volta em descanso curto).'});
+        out.push({n:'Action Surge + manobra',tier:2,parts:[atk(2*n,hit,[die,c.m.dex+rep]),rider(2*n,hit,sd)],note:'1x por descanso.'});
+      } else if(c.L>=2) out.push({n:'Action Surge',tier:2,parts:[atk(2*n,hit,[die,c.m.dex+rep])],note:'1x por descanso.'});
+      return out;
+    },
+    feats:[[1,'Estilo Archery (+2), Second Wind, Weapon Mastery (Push na besta pesada)'],[2,'Action Surge e Tactical Mind'],
+      [3,'Battle Master: 4 dados de superioridade (d8) e 3 manobras'],[4,'Talento ou aumento de atributo'],
+      [5,'Extra Attack (a besta exige Crossbow Expert ou Repeating Shot)'],[6,'Talento extra do guerreiro'],
+      [7,'Know Your Enemy; 5 dados e 5 manobras'],[8,'Talento ou aumento de atributo'],
+      [9,'Indomitable (rerrola um teste de resistência)'],[10,'Dados viram d10; 7 manobras']],
+    pros:'Dano constante, recursos em descanso curto e a melhor sinergia com o ladino.',
+    cons:'Sem magias. A besta cobra um talento ou depende do artífice. Pouca utilidade fora de combate.'
+  }
+};
+const BUILD_ORDER = ['fwl','valor','pal','twi','gloom','lock','swords','fval','shadow','bm'];
+const TIERS = ['à vontade','com magia de concentração','pico (gasta recurso)'];
+
+/* ---------- cálculo ---------- */
+function compute(sel, L, tAC){
+  const B = BUILDS[sel.b] || BUILDS.fwl;
+  const sp = SP[sel.sp] || SP.humano;
+  const bg = BG[sel.bg] || BG[B.defBg];
+  const sc = Object.assign({}, B.base);
+  const pri = B.prio.filter(a => bg.ab.includes(a));
+  sc[pri[0]] += 2; sc[pri[1]] += 1;
+  const bgApplied = `${ABL[pri[0]]} +2, ${ABL[pri[1]]} +1`;
+  const feats = new Set([bg.feat]);
+  if (sp.extraFeat && sel.hf && OF[sel.hf]) feats.add(sel.hf);
+  const saveProf = new Set(B.saves);
+  const mental = B.prio.find(a => ['int','wis','cha'].includes(a));
+  const picks = [];
+  for (const lv of B.asiLv){
+    if (L < lv) continue;
+    const g = (sel.g && sel.g[lv]) || 'asi';
+    let what = '';
+    if (g === 'asi'){
+      let p = B.prio.find(a => sc[a] < 20);
+      if (sc[p] % 2){ sc[p]++; const o = B.prio.find(a => a!==p && sc[a]%2 && sc[a]<20) || B.prio.find(a => a!==p && sc[a]<20); sc[o]++; what = `${ABL[p]} ${sc[p]-1} → ${sc[p]}, ${ABL[o]} ${sc[o]-1} → ${sc[o]}`; }
+      else { sc[p] += 2; what = `${ABL[p]} ${sc[p]-2} → ${sc[p]}`; }
+    } else {
+      const G = GF[g]; feats.add(g);
+      if (G.plus){ const a = G.plus==='cast' ? (B.prio.find(x => ['int','wis','cha'].includes(x) && sc[x]%2 && sc[x]<20) || B.cast || mental) : G.plus; if (sc[a] < 20){ sc[a]++; what = `${ABL[a]} ${sc[a]-1} → ${sc[a]}`; } }
+      if (G.prof) saveProf.add(G.prof);
+    }
+    picks.push({lv, g, what});
+  }
+  const m = {}; AB.forEach(a => m[a] = mod(sc[a]));
+  const pb = pbOf(L);
+  const v = sel.v && B.variants && B.variants.some(x => x.id===sel.v) ? sel.v : (B.variants ? B.variants[0].id : null);
+  const c = {L, pb, m, sc, v, has:f => feats.has(f), sp};
+  if (B.tweak) B.tweak(c, saveProf);
+
+  const hd = B.hd(L);
+  let hp = hd[0] + m.con;
+  for (let i=1;i<L;i++) hp += hd[i]/2 + 1 + m.con;
+  if (feats.has('tough')) hp += 2*L;
+  if (sp.hp) hp += sp.hp*L;
+
+  const ac = B.ac(c); ac.v += (sp.ac||0);
+  const sb = B.saveBonus ? B.saveBonus(c) : 0;
+  const saves = {};
+  AB.forEach(a => saves[a] = {v:m[a] + (saveProf.has(a)?pb:0) + sb, prof:saveProf.has(a), adv:!!(sp.adv && sp.adv.includes(a))});
+  const init = m.dex + (feats.has('alert')?pb:0) + (sp.initPB?pb:0) + (B.init?B.init(c):0);
+  const dark = B.dark ? B.dark(c, sp.dv) : {v:sp.dv};
+
+  const routines = B.routines(c).map(r => {
+    let raw = 0, exp = 0;
+    for (const p of r.parts){
+      if (p.k==='atk'){ const ph = clamp((21+p.hit-tAC)/20,.05,.95); raw += p.n*p.dmg; exp += p.n*ph*p.dmg; }
+      else if (p.k==='rider'){ const ph = clamp((21+p.hit-tAC)/20,.05,.95); raw += p.dmg; exp += (1-Math.pow(1-ph,p.n))*p.dmg; }
+      else if (p.k==='save'){ const pf = clamp((p.dc-1-MONSTER_SAVE)/20,0,1); raw += p.dmg*p.targets; exp += p.dmg*(pf+(p.half?(1-pf)/2:0))*p.targets; }
+    }
+    const a = r.parts.find(p => p.k==='atk'), s = r.parts.find(p => p.k==='save');
+    return {n:r.n, tier:r.tier, multi:!!r.multi, note:r.note||'', f:r.parts.map((p,i) => i===0 ? p.f : (p.k==='rider' ? ' '+p.f : ' + '+p.f)).join(''),
+      hit:a?a.hit:null, dc:s?s.dc:null, raw, exp};
+  });
+  const best = t => routines.filter(r => r.tier<=t && !r.multi).reduce((x,r) => r.exp>x.exp?r:x, routines[0]);
+
+  const strahdAdv = saves.wis.adv || !!sp.advCharm;
+  const p0 = clamp((21+saves.wis.v-17)/20,0,1);
+  let pS = strahdAdv ? 1-(1-p0)*(1-p0) : p0;
+  const cc = !!(B.cc && B.cc(c));
+  if (cc) pS = pS + (1-pS)*(1-(1-p0)*(1-p0));
+  const concAdv = feats.has('warcaster');
+  let pC = clamp((21+saves.con.v-10)/20,0,1); if (concAdv) pC = 1-(1-pC)*(1-pC);
+
+  return {B, sp, bg, bgApplied, sc, m, pb, feats:[...feats], picks, v, hp:Math.floor(hp), ac, saves, sb, init, dark,
+    routines, best, strahd:{p:pS, adv:strahdAdv, cc}, conc:B.conc?{p:pC, adv:concAdv}:null,
+    shHint:v==='staff' && !feats.has('mi_druid')};
+}
+
+if (typeof module !== 'undefined') module.exports = {compute, BUILDS, BUILD_ORDER, SP, BG, OF, GF, HUMAN_FEATS, TIERS, AB, ABL};
+
+/* ---------- interface ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+const num = (x, d) => x.toLocaleString('pt-BR', {maximumFractionDigits:d==null?1:d, minimumFractionDigits:0});
+const sgn = v => (v>=0?'+':'−') + Math.abs(v);
+const pct = p => Math.round(p*100) + '%';
+const ROMAN = ['I','II','III'];
+const PHASES = [[1,3,'Death House'],[4,6,'Barovia e Vallaki'],[7,8,'Krezk, Argynvostholt, Berez'],[9,10,'Amber Temple e Castle Ravenloft']];
+const KEY = 'barovia-builds-v1';
+
+const defaultsFor = b => { const B = BUILDS[b]; return {b, v:B.variants?B.variants[0].id:null, sp:'humano', bg:B.defBg, hf:'alert', g:{}}; };
+let state = {
+  L:5, ac:15, tier:1,
+  cols:[
+    {b:'fwl', v:'defense', sp:'humano', bg:'haunted', hf:'mi_wizard', g:{}},
+    {b:'valor', v:'staff', sp:'humano', bg:'artista', hf:'mi_druid', g:{}},
+    {b:'pal', v:'dueling', sp:'humano', bg:'nobre', hf:'alert', g:{}}
+  ]
+};
+function sane(s){
+  if (!s || !Array.isArray(s.cols) || s.cols.length!==3) return null;
+  s.L = clamp(parseInt(s.L,10)||5,1,10); s.ac = clamp(parseInt(s.ac,10)||15,10,22); s.tier = clamp(parseInt(s.tier,10)||0,0,2);
+  s.cols = s.cols.map(c => BUILDS[c.b] ? Object.assign(defaultsFor(c.b), c, {g:c.g||{}}) : defaultsFor('fwl'));
+  return s;
+}
+function persist(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){} }
+
+function opt(v, label, cur){ return `<option value="${esc(v)}"${v===cur?' selected':''}>${esc(label)}</option>`; }
+
+function controls(i){
+  const s = state.cols[i], B = BUILDS[s.b], sp = SP[s.sp];
+  const groups = {};
+  Object.keys(SP).forEach(k => (groups[SP[k].src] = groups[SP[k].src] || []).push(k));
+  let h = `<label class="f"><span>Build</span><select id="c${i}-b" data-i="${i}" data-k="b">` +
+    BUILD_ORDER.map(k => opt(k, BUILDS[k].n + (BUILDS[k].tag==='finalista'?' ★':''), s.b)).join('') + `</select></label>`;
+  if (B.variants) h += `<label class="f"><span>Variante</span><select id="c${i}-v" data-i="${i}" data-k="v">` + B.variants.map(v => opt(v.id, v.n, s.v)).join('') + `</select></label>`;
+  h += `<label class="f"><span>Espécie</span><select id="c${i}-sp" data-i="${i}" data-k="sp">` +
+    Object.keys(groups).map(g => `<optgroup label="${esc(g)}">` + groups[g].map(k => opt(k, SP[k].n, s.sp)).join('') + `</optgroup>`).join('') + `</select></label>`;
+  if (sp.extraFeat) h += `<label class="f"><span>Talento extra do humano</span><select id="c${i}-hf" data-i="${i}" data-k="hf">` + HUMAN_FEATS.map(k => opt(k, OF[k].n, s.hf)).join('') + `</select></label>`;
+  h += `<label class="f"><span>Antecedente</span><select id="c${i}-bg" data-i="${i}" data-k="bg">` +
+    Object.keys(BG).map(k => opt(k, `${BG[k].n} · ${BG[k].ab.map(a => ABL[a]).join(', ')} · ${OF[BG[k].feat].n}`, s.bg)).join('') + `</select></label>`;
+  B.asiLv.forEach(lv => {
+    h += `<label class="f"><span>Escolha do nível ${lv}</span><select id="c${i}-g${lv}" data-i="${i}" data-k="g" data-lv="${lv}">` +
+      Object.keys(GF).map(k => opt(k, GF[k].n, s.g[lv]||'asi')).join('') + `</select></label>`;
+  });
+  return h;
+}
+
+function meter(label, p, adv, hint){
+  const cls = p>=.6?'good':p>=.4?'mid':'low';
+  return `<div class="meter ${cls}"><div class="meter-top"><span>${esc(label)}</span><b>${pct(p)}</b></div>` +
+    `<div class="bar" role="img" aria-label="${pct(p)}"><i style="width:${Math.round(p*100)}%"></i></div>` +
+    `<small>${adv?'Com vantagem. ':''}${esc(hint)}</small></div>`;
+}
+
+function results(i, r, tops){
+  const B = r.B, L = state.L, top = k => tops[k]===i ? ' top' : '';
+  let h = `<header class="card-head"><span class="rn">${ROMAN[i]}</span><div><p class="ep">${esc(B.ep)}</p><h2>${esc(B.n)}</h2></div><span class="tag t-${B.tag.replace(/\s/g,'')}">${esc(B.tag)}</span></header>`;
+  h += `<p class="sum">${esc(B.sum)}</p>`;
+  h += `<div class="tiles">` +
+    `<div class="tile${top('ac')}"><b>${r.ac.v}</b><span>CA</span></div>` +
+    `<div class="tile${top('hp')}"><b>${r.hp}</b><span>PV</span></div>` +
+    `<div class="tile${top('init')}"><b>${sgn(r.init)}</b><span>Iniciativa</span></div>` +
+    `<div class="tile"><b>${r.dark.v?r.dark.v+' m':'não'}</b><span>Visão no escuro</span></div></div>`;
+  h += `<p class="fine">${esc(r.ac.d)}${r.ac.stealth?' (desvantagem em Furtividade)':''}. ${r.ac.extra?esc(r.ac.extra)+'. ':''}${r.dark.d?esc(r.dark.d)+'.':''}${r.sp.dvq&&!r.dark.d?'Visão no escuro da espécie a confirmar no livro.':''}</p>`;
+
+  h += `<h3>Atributos</h3><div class="six">` + AB.map(a => `<div><span>${ABL[a]}</span><b>${r.sc[a]}</b><i>${sgn(r.m[a])}</i></div>`).join('') + `</div>`;
+  h += `<p class="fine">Antecedente: ${esc(r.bgApplied)}.</p>` +
+    (r.picks.length ? `<ul class="plain">` + r.picks.map(p => `<li><b>Nível ${p.lv}, ${esc(GF[p.g].n)}:</b> ${p.what?esc(p.what):'não muda atributos'}.</li>`).join('') + `</ul>` : '');
+
+  h += `<h3>Testes de resistência</h3><div class="six sv">` + AB.map(a => { const s = r.saves[a];
+    return `<div class="${s.prof?'prof':''}"><span>${ABL[a]}</span><b>${sgn(s.v)}</b><i>${s.prof?'prof.':'\u00a0'}${s.adv?' vant.':''}</i></div>`; }).join('') + `</div>`;
+  h += `<p class="fine">Borda escura e "prof." marcam proficiência; "vant." marca vantagem da espécie.${r.sb?` Inclui +${r.sb} da ${esc(B.saveBonusName)}.`:''}</p>`;
+  h += `<div class="meters">` + meter('Resiste ao charme de Strahd', r.strahd.p, r.strahd.adv, 'Teste de Sabedoria, CD 17 (ficha de 2016).' + (r.strahd.cc ? ' Inclui o Countercharm, que gasta a reação.' : '')) +
+    (r.conc ? meter('Mantém a concentração', r.conc.p, r.conc.adv, 'Teste de Constituição, CD 10, ao sofrer dano.') : '') + `</div>`;
+
+  h += `<h3>Dano em um turno</h3><ul class="rt">` + r.routines.map(x => {
+    const isBest = x === r.best(state.tier);
+    return `<li class="${x.tier>state.tier?'off':''}${isBest?' pick':''}"><div class="rt-top"><span>${esc(x.n)}</span><b>${num(x.exp)}</b></div>` +
+      `<div class="rt-sub"><code>${esc(x.f)}</code> = ${num(x.raw)} se tudo acertar · ${x.hit!=null?'ataque '+sgn(x.hit):''}${x.hit!=null&&x.dc?' · ':''}${x.dc?'CD '+x.dc:''}</div>` +
+      `<div class="rt-sub"><span class="pill p${x.tier}">${TIERS[x.tier]}</span>${x.multi?' <span class="pill">vários alvos</span>':''} ${esc(x.note)}</div></li>`; }).join('') + `</ul>`;
+  if (r.shHint) h += `<p class="fine">O bordão com Shillelagh exige o talento Magic Initiate (Druida), pelo humano ou pelo antecedente Guia. Sem ele, a conta usa a arma comum.</p>`;
+
+  h += `<h3>Progressão</h3><ol class="prog">` + B.feats.map(([lv, t]) => `<li class="${lv===L?'now':lv>L?'later':''}"><span>${lv}</span>${esc(t)}</li>`).join('') + `</ol>`;
+
+  h += `<h3>Espécie e talentos</h3><ul class="plain"><li><b>${esc(r.sp.n)}</b> (${esc(r.sp.src)}): ${esc(r.sp.t)}</li>` +
+    r.feats.map(f => { const o = OF[f] || GF[f]; return o && o.t ? `<li><b>${esc(o.n)}</b>: ${esc(o.t)}</li>` : ''; }).join('') +
+    `<li><b>Perícias do antecedente</b>: ${esc(r.bg.sk)}.</li></ul>`;
+  h += `<h3>Balanço</h3><ul class="plain"><li><b>A favor:</b> ${esc(B.pros)}</li><li><b>Contra:</b> ${esc(B.cons)}</li></ul>`;
+  return h;
+}
+
+function tint(v, max){ return `background:color-mix(in srgb, var(--blood) ${Math.round(clamp(v/max,0,1)*34)}%, transparent)`; }
+
+function matrices(){
+  const L = state.L, t = state.tier;
+  const rows = BUILD_ORDER.map(b => ({b, r:compute(Object.assign(defaultsFor(b), {hf:'lucky'}), L, state.ac)}));
+  const mx = k => Math.max(...rows.map(k));
+  const mAC = mx(x => x.r.ac.v), mHP = mx(x => x.r.hp), mW = mx(x => x.r.saves.wis.v), mC = mx(x => x.r.saves.con.v), mI = mx(x => x.r.init), mD = mx(x => x.r.best(t).exp);
+  const td = (v, m, txt) => `<td class="n${v===m?' top':''}">${txt}</td>`;
+  $('m1-title').textContent = `Todas as builds no nível ${L}`;
+  $('m1').innerHTML = `<thead><tr><th>Build</th><th class="n">CA</th><th class="n">PV</th><th class="n">SAB</th><th class="n">CON</th><th class="n">Inic.</th><th class="n">Resiste a Strahd</th><th class="n">Dano esperado</th><th>Melhor turno</th><th>Marco do nível</th><th>Comparar em</th></tr></thead><tbody>` +
+    rows.map(({b, r}) => { const bst = r.best(t), ft = r.B.feats.find(f => f[0]===L);
+      return `<tr><th scope="row">${esc(r.B.n)}<span class="tag t-${r.B.tag.replace(/\s/g,'')}">${esc(r.B.tag)}</span></th>` +
+        td(r.ac.v, mAC, r.ac.v) + td(r.hp, mHP, r.hp) + td(r.saves.wis.v, mW, sgn(r.saves.wis.v)) + td(r.saves.con.v, mC, sgn(r.saves.con.v)) + td(r.init, mI, sgn(r.init)) +
+        `<td class="n">${pct(r.strahd.p)}</td>` + td(bst.exp, mD, num(bst.exp)) + `<td>${esc(bst.n)}</td><td class="wide">${esc(ft?ft[1]:'')}</td>` +
+        `<td class="go">${ROMAN.map((x, i) => `<button type="button" data-load="${b}" data-col="${i}" aria-label="Pôr ${esc(r.B.n)} na carta ${x}">${x}</button>`).join('')}</td></tr>`; }).join('') + `</tbody>`;
+
+  const grid = BUILD_ORDER.map(b => { const s = Object.assign(defaultsFor(b), {hf:'lucky'}); return {b, v:Array.from({length:10}, (_, k) => compute(s, k+1, state.ac).best(t).exp)}; });
+  const gmax = Math.max(...grid.flatMap(g => g.v));
+  $('m2').innerHTML = `<thead><tr><th>Build</th>` + Array.from({length:10}, (_, k) => `<th class="n${k+1===L?' cur':''}${k+1===5||k+1===6?' win':''}">${k+1}</th>`).join('') + `</tr></thead><tbody>` +
+    grid.map(g => `<tr><th scope="row">${esc(BUILDS[g.b].n)}</th>` + g.v.map((v, k) => `<td class="n${k+1===L?' cur':''}${k+1===5||k+1===6?' win':''}" style="${tint(v, gmax)}">${num(v)}</td>`).join('') + `</tr>`).join('') + `</tbody>`;
+  $('m-cap').textContent = `Escolhas padrão em todas: humano, antecedente sugerido, primeira variante e aumento de atributo nos níveis de talento. Dano esperado contra CA ${state.ac}, um alvo, rotinas até "${TIERS[t]}".`;
+}
+
+function renderResults(){
+  const rs = state.cols.map(c => compute(c, state.L, state.ac));
+  const tops = {};
+  [['ac', r => r.ac.v], ['hp', r => r.hp], ['init', r => r.init]].forEach(([k, f]) => { const vs = rs.map(f), m = Math.max(...vs); tops[k] = vs.filter(v => v===m).length===1 ? vs.indexOf(m) : -1; });
+  rs.forEach((r, i) => { $('res'+i).innerHTML = results(i, r, tops); });
+  matrices();
+  document.querySelectorAll('#levels button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.l===state.L)));
+  $('lv-now').textContent = state.L;
+  const ph = PHASES.find(p => state.L>=p[0] && state.L<=p[1]);
+  $('lv-phase').textContent = ph[2] + (state.L===5||state.L===6 ? ' · janela que você quer forte' : state.L>=7 ? ' · final da campanha' : '');
+  persist();
+}
+function renderControls(i, focusId){ $('ctl'+i).innerHTML = controls(i); if (focusId && $(focusId)) $(focusId).focus(); }
+
+function start(saved){
+  const s = sane(saved && saved.cols ? saved : (() => { try { return JSON.parse(localStorage.getItem(KEY)); } catch(e){ return null; } })());
+  if (s) state = s;
+  $('levels').innerHTML = Array.from({length:10}, (_, k) => `<button type="button" data-l="${k+1}" class="${k+1===5||k+1===6?'win':''}" aria-pressed="false">${k+1}</button>`).join('');
+  $('phases').innerHTML = PHASES.map(p => `<span style="grid-column:${p[0]} / ${p[1]+1}">${esc(p[2])}</span>`).join('');
+  $('cols').innerHTML = [0,1,2].map(i => `<article class="card" aria-label="Carta ${ROMAN[i]}"><div class="ctl" id="ctl${i}"></div><div class="res" id="res${i}"></div></article>`).join('');
+  $('ac').value = state.ac; $('tier').value = state.tier;
+  [0,1,2].forEach(i => renderControls(i));
+  renderResults();
+
+  $('levels').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; state.L = +b.dataset.l; renderResults(); });
+  $('ac').addEventListener('change', e => { state.ac = +e.target.value; renderResults(); });
+  $('tier').addEventListener('change', e => { state.tier = +e.target.value; renderResults(); });
+  $('cols').addEventListener('change', e => {
+    const el = e.target; if (!el.dataset.k) return;
+    const i = +el.dataset.i, k = el.dataset.k, c = state.cols[i];
+    if (k==='b'){ state.cols[i] = Object.assign(defaultsFor(el.value), {sp:c.sp, hf:c.hf}); renderControls(i, el.id); }
+    else if (k==='g'){ c.g[el.dataset.lv] = el.value; }
+    else { c[k] = el.value; if (k==='sp') renderControls(i, el.id); }
+    renderResults();
+  });
+  $('m1').addEventListener('click', e => { const b = e.target.closest('button[data-load]'); if (!b) return;
+    const i = +b.dataset.col; state.cols[i] = defaultsFor(b.dataset.load); renderControls(i); renderResults();
+    $('res'+i).closest('.card').scrollIntoView({block:'start', behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}); });
+  if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(() => state);
+}
+if (window.claude && window.claude.hot && window.claude.hot.ready) window.claude.hot.ready(start);
+else start((window.claude && window.claude.hot && window.claude.hot.data) || {});
+
+</script>
+</body>
+</html>
