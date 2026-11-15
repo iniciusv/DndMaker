@@ -18,7 +18,7 @@ public sealed class QueryTests
 {
     private const double Tolerance = 1e-9;
 
-    private static readonly CharacterAnalyzer Analyzer = new(CurseOfStrahd.Campaign.CharmThreat);
+    private static readonly CharacterAnalyzer Analyzer = CurseOfStrahd.Ruleset.CreateAnalyzer();
 
     [Fact]
     public void Catalogo_oferece_as_opcoes_da_pagina()
@@ -83,8 +83,8 @@ public sealed class QueryTests
         var paladin = new AnalyzeComparisonQuery(CurseOfStrahd.Ruleset, Analyzer).Execute(comparison).Cards[2];
 
         paladin.Name.Should().Be("Paladino (Watchers)");
-        paladin.BackgroundBonus.Should().Be("FOR +2, CAR +1");
-        paladin.Picks.Should().ContainSingle().Which.Should().Be(new PickDto(4, "asi", "Aumento de atributo (+2)", "FOR 17 → 18, CAR 15 → 16"));
+        paladin.BackgroundBonus.Should().Be("CAR +2, FOR +1", "CAR 14 + 2 e FOR 15 + 1 dão 16 e 16 (fase 6, problema 8)");
+        paladin.Picks.Should().ContainSingle().Which.Should().Be(new PickDto(4, "asi", "Aumento de atributo (+2)", "FOR 16 → 18"));
         paladin.SaveBonus.Should().Be(3);
         paladin.SaveBonusSources.Should().Equal("Aura of Protection");
         paladin.Saves.Single(s => s.Abbreviation == "SAB").Should().Be(new SaveDto("SAB", 7, Proficient: true, Advantage: false));

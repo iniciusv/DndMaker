@@ -2,7 +2,6 @@ using DndMaker.Application.Catalog;
 using DndMaker.Application.Comparison;
 using DndMaker.Application.Overview;
 using DndMaker.Application.Session;
-using DndMaker.Domain.Analysis;
 using DndMaker.Domain.Rulesets;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -20,7 +19,7 @@ public static class ApplicationServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
 
         services.TryAddSingleton(TimeProvider.System);
-        services.AddSingleton(sp => new CharacterAnalyzer(sp.GetRequiredService<Ruleset>().Campaign.CharmThreat));
+        services.AddSingleton(sp => sp.GetRequiredService<Ruleset>().CreateAnalyzer());
 
         services.AddSingleton<GetCatalogQuery>();
         services.AddSingleton<AnalyzeComparisonQuery>();

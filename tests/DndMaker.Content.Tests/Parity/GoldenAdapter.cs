@@ -21,7 +21,7 @@ internal static class GoldenAdapter
     public const string AbilityScoreImprovementId = "asi";
 
     private static readonly Ruleset Rules = CurseOfStrahd.Ruleset;
-    private static readonly CharacterAnalyzer Analyzer = new(CurseOfStrahd.Campaign.CharmThreat);
+    private static readonly CharacterAnalyzer Analyzer = new(CurseOfStrahd.Campaign.CharmThreat, AbilityScoreAllocator.LogicJs);
 
     public static CharacterSheet Analyze(GoldenInput input) =>
         Analyzer.Analyze(ToBuild(input), Level.Of(input.L), new CombatAssumptions(new ArmorClass(input.TAc)));

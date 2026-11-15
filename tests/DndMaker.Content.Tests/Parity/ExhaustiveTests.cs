@@ -29,7 +29,7 @@ public sealed class ExhaustiveTests
     {
         var rules = CurseOfStrahd.Ruleset;
         var campaign = rules.Campaign;
-        var analyzer = new CharacterAnalyzer(campaign.CharmThreat);
+        var analyzer = rules.CreateAnalyzer();
         var assumptions = new CombatAssumptions(campaign.DefaultEnemyArmorClass);
         var levels = campaign.Levels.ToList();
         var failures = new ConcurrentQueue<string>();

@@ -75,7 +75,7 @@ internal static class TestRules
 
     public static readonly ConditionThreat StrahdCharm = new("Charme de Strahd", Ability.Wisdom, new DifficultyClass(17), Condition.Charmed);
 
-    public static readonly CharacterAnalyzer Analyzer = new(StrahdCharm);
+    public static readonly CharacterAnalyzer Analyzer = new(StrahdCharm, AbilityScoreAllocator.LogicJs);
 
     public static readonly TestPaladin PaladinBuild = new();
     public static readonly TestFighterWarlock FighterWarlockBuild = new();

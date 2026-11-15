@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using DndMaker.Domain.Abilities;
 using DndMaker.Domain.Builds;
 using DndMaker.Domain.Catalog;
@@ -74,23 +75,108 @@ public sealed class RoundUpPriorityPolicy : IAsiPolicy
     }
 }
 
-/// <summary>Atributos finais: conjunto base da build, antecedente e escolhas dos níveis de talento.</summary>
-public sealed class AbilityScoreAllocator(IAsiPolicy policy)
+/// <summary>Como dividir o +2/+1 do antecedente entre os atributos que ele permite.</summary>
+public interface IBackgroundBonusPolicy
 {
-    public static AbilityScoreAllocator Default { get; } = new(RoundUpPriorityPolicy.Instance);
+    /// <param name="candidates">As divisões possíveis; a primeira é a do logic.js (+2 no primeiro da prioridade, +1 no segundo).</param>
+    /// <param name="modifiersAt">Os seis modificadores, na ordem de prioridade da build, com uma divisão e num nível.</param>
+    BackgroundBonus Choose(IReadOnlyList<BackgroundBonus> candidates, Func<BackgroundBonus, Level, int[]> modifiersAt);
+}
 
-    public AbilityAllocation Allocate(CharacterBuild build, Level level)
+/// <summary>Como o logic.js: +2 no primeiro da prioridade e +1 no segundo, sem olhar se o valor fica par.</summary>
+public sealed class PriorityBackgroundPolicy : IBackgroundBonusPolicy
+{
+    public static PriorityBackgroundPolicy Instance { get; } = new();
+
+    public BackgroundBonus Choose(IReadOnlyList<BackgroundBonus> candidates, Func<BackgroundBonus, Level, int[]> modifiersAt) => candidates[0];
+}
+
+/// <summary>
+/// Problema 8 do plano: a divisão que deixa a build com os maiores modificadores no último nível planejado,
+/// comparados na ordem de prioridade; no empate, a que dá mais no nível 1; se ainda empatar, a do logic.js.
+/// Com CAR 15 e DES 14, CAR +1 e DES +2 dão 16 e 16 em vez de 17 e 15. A divisão vale para a build inteira,
+/// por isso olha o plano todo: com Fey Touched no 5, CAR 17 → 18 ganha de CAR 16 → 17.
+/// </summary>
+public sealed class BestModifiersBackgroundPolicy(Level planningLevel) : IBackgroundBonusPolicy
+{
+    public BackgroundBonus Choose(IReadOnlyList<BackgroundBonus> candidates, Func<BackgroundBonus, Level, int[]> modifiersAt)
+    {
+        int[] Key(BackgroundBonus bonus) => [.. modifiersAt(bonus, planningLevel), .. modifiersAt(bonus, Level.Of(Level.Min))];
+
+        var best = candidates[0];
+        var bestKey = Key(best);
+        foreach (var candidate in candidates.Skip(1))
+        {
+            var key = Key(candidate);
+            if (IsBetter(key, bestKey))
+            {
+                best = candidate;
+                bestKey = key;
+            }
+        }
+
+        return best;
+    }
+
+    private static bool IsBetter(int[] candidate, int[] current)
+    {
+        for (var i = 0; i < candidate.Length; i++)
+        {
+            if (candidate[i] != current[i])
+            {
+                return candidate[i] > current[i];
+            }
+        }
+
+        return false;
+    }
+}
+
+/// <summary>Atributos finais: conjunto base da build, antecedente e escolhas dos níveis de talento.</summary>
+public sealed class AbilityScoreAllocator(IAsiPolicy policy, IBackgroundBonusPolicy backgroundPolicy)
+{
+    /// <summary>A divisão do antecedente só depende da build, não do nível: calcula uma vez por build.</summary>
+    private readonly ConditionalWeakTable<CharacterBuild, BackgroundBonus> _bonusByBuild = [];
+
+    /// <summary>Exatamente como o logic.js, para a paridade com o golden.</summary>
+    public static AbilityScoreAllocator LogicJs { get; } = new(RoundUpPriorityPolicy.Instance, PriorityBackgroundPolicy.Instance);
+
+    /// <summary>
+    /// O que o programa usa: aumentos arredondados e a divisão do antecedente que planeja a build até
+    /// <paramref name="planningLevel"/> (o último nível da campanha).
+    /// </summary>
+    public static AbilityScoreAllocator PlanningUpTo(Level planningLevel) =>
+        new(RoundUpPriorityPolicy.Instance, new BestModifiersBackgroundPolicy(planningLevel));
+
+    public AbilityAllocation Allocate(CharacterBuild build, Level level) =>
+        AllocateWith(build, _bonusByBuild.GetValue(build, ChooseBackgroundBonus), level);
+
+    private BackgroundBonus ChooseBackgroundBonus(CharacterBuild build)
     {
         var archetype = build.Archetype;
-        var scores = archetype.Profile.BaseScores;
-
         var allowed = archetype.Priority.Where(a => build.Background.Abilities.Contains(a)).ToList();
         if (allowed.Count < 2)
         {
             throw new DomainException($"O antecedente {build.Background.Id} não tem dois atributos para distribuir.");
         }
 
-        var bonus = new BackgroundBonus(allowed[0], allowed[1]);
+        List<BackgroundBonus> candidates =
+        [
+            .. from major in allowed
+               from minor in allowed
+               where major != minor
+               select new BackgroundBonus(major, minor),
+        ];
+
+        return backgroundPolicy.Choose(
+            candidates,
+            (candidate, at) => [.. archetype.Priority.Select(a => AllocateWith(build, candidate, at).Scores[a].Modifier)]);
+    }
+
+    private AbilityAllocation AllocateWith(CharacterBuild build, BackgroundBonus bonus, Level level)
+    {
+        var archetype = build.Archetype;
+        var scores = archetype.Profile.BaseScores;
         scores = scores.With(bonus.Major, scores[bonus.Major] + 2).With(bonus.Minor, scores[bonus.Minor] + 1);
 
         var picks = ImmutableArray.CreateBuilder<LevelPick>();

@@ -49,8 +49,8 @@ public sealed class ViewModelTests : IAsyncDisposable
         warlock.ArmorText.Should().Be(
             "cota de malha + escudo + Defense (desvantagem em Furtividade). Armor of Agathys: +10 PV temporários, sem concentração. "
             + "Devil's Sight: enxerga também em escuridão mágica.");
-        warlock.BackgroundText.Should().Be("Antecedente: CAR +2, CON +1.");
-        warlock.Picks.Should().ContainSingle().Which.Should().Be(new LabeledTextViewModel("Nível 5, Aumento de atributo (+2):", "CAR 17 → 18, CON 15 → 16."));
+        warlock.BackgroundText.Should().Be("Antecedente: CON +2, CAR +1.", "CAR 16 e CON 16 em vez de 17 e 15 (fase 6, problema 8)");
+        warlock.Picks.Should().ContainSingle().Which.Should().Be(new LabeledTextViewModel("Nível 5, Aumento de atributo (+2):", "CAR 16 → 18."));
         warlock.Saves.Select(s => s.Detail).Should().Equal("prof.", " ", "prof.", " ", " ", " ");
         warlock.Charm.PercentText.Should().Be("35%");
         warlock.Charm.Level.Should().Be(MeterLevel.Low);

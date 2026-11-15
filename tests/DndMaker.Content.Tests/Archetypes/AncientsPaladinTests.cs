@@ -16,7 +16,7 @@ public sealed class AncientsPaladinTests
 {
     private const double Tolerance = 1e-9;
 
-    private static readonly CharacterAnalyzer Analyzer = new(CurseOfStrahd.Campaign.CharmThreat);
+    private static readonly CharacterAnalyzer Analyzer = CurseOfStrahd.Ruleset.CreateAnalyzer();
 
     private static CharacterSheet Sheet(int level)
     {

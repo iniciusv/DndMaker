@@ -1,5 +1,6 @@
 using System.Collections.Frozen;
 using System.Collections.Immutable;
+using DndMaker.Domain.Analysis;
 using DndMaker.Domain.Builds;
 using DndMaker.Domain.Catalog;
 using DndMaker.Domain.Common;
@@ -88,6 +89,13 @@ public sealed class Ruleset
     /// </summary>
     public CharacterBuild DefaultCharacter(BuildArchetype archetype) =>
         CharacterBuild.Create(archetype, GetSpecies(Campaign.DefaultSpecies), SuggestedBackground(archetype), GetFeat(Campaign.DefaultExtraOriginFeat));
+
+    /// <summary>
+    /// O analisador da campanha: o charme dela e a divisão do antecedente planejada até o último nível
+    /// (problema 8 do plano).
+    /// </summary>
+    public CharacterAnalyzer CreateAnalyzer() =>
+        new(Campaign.CharmThreat, AbilityScoreAllocator.PlanningUpTo(Level.Of(Campaign.MaxLevel)));
 
     /// <summary>Como <see cref="DefaultCharacter"/>, mas com o talento extra das tabelas com todas as builds.</summary>
     public CharacterBuild OverviewCharacter(BuildArchetype archetype) =>

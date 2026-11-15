@@ -383,6 +383,7 @@ Outras mudanças: o `App` só monta os serviços no modo desktop (nos testes sem
 5. As tabelas usam Lucky como talento extra e a legenda não diz.
 6. `best()` parte sempre da primeira rotina, sem conferir faixa nem alvos.
 7. Dano extra de espécies (Aasimar, Bugbear, Golias) não é calculado nem avisado.
+8. O +2/+1 do antecedente vai sempre para os dois primeiros atributos da prioridade, mesmo quando deixa dois valores ímpares (CAR 17 e DES 15 em vez de 16 e 16). Achado depois da fase 6.
 
 ### 12.1 Como ficou na fase 6
 
@@ -405,6 +406,7 @@ Decisão registrada: o dano extra das espécies ficou como rotina opcional, fora
 - **Survivor com Countercharm:** o bônus do Survivor que não salvou a primeira rolagem continua guardado e vale na rerrolagem (`D20Check.SuccessWith`), conferido contra a enumeração de todas as rolagens.
 - **Paladino (Ancients)** (`Archetypes/AncientsPaladin.cs`, id `ancients`), a 11ª build, com as builds em análise. Espadão com Great Weapon Fighting a partir do 2, sem escudo; Divine Smite e "… contra morto-vivo" como no Watchers; Moonbeam (concentração, 2d10 radiante, metade no sucesso) a partir do 5; Aura of Protection no 6; Aura of Warding no 7, mostrada na linha da armadura. Antecedente sugerido: Soldado. Graze, Savage Attacker, Nature's Wrath e Ensnaring Strike não entram na conta.
 - **Face mínima nos dados:** `Dice.WithMinimumFace` (um d6 com mínimo 3 tem média 4), usada pelo GWF só nos dados da arma, não no smite. O texto da fórmula não mostra o mínimo; a nota da rotina explica.
+- **Problema 8, divisão do antecedente:** o alocador recebe uma `IBackgroundBonusPolicy`. A do programa (`BestModifiersBackgroundPolicy`) simula a build com cada divisão até o último nível da campanha e fica com a de maiores modificadores lá, na ordem de prioridade; no empate, a que dá mais no nível 1; se ainda empatar, a do logic.js. A divisão vale para a build inteira e é calculada uma vez por build. Com só aumentos de atributo, todas as builds com o antecedente sugerido passam a começar com 16 e 16 em vez de 17 e 15; com Fey Touched no 5, o Guerreiro 1 → Bruxo mantém CAR 17 → 18. O `Ruleset.CreateAnalyzer()` monta o analisador com o último nível da campanha. A paridade e as fixtures do Domain usam `AbilityScoreAllocator.LogicJs`, que copia o logic.js; o novo comportamento é testado em `Diverge_8_*` e `BackgroundBonusPolicyTests`.
 - **Builds sem golden:** o Ancients não existia no `logic.js`. `GoldenParityTests.BuildsWithoutGolden` o tira da comparação de ordem com o golden, e `AncientsPaladinTests` confere os números à mão.
 
 ## 13. Extras

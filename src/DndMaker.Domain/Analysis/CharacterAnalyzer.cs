@@ -59,13 +59,9 @@ public sealed record CharacterSheet
 }
 
 /// <summary>Monta a ficha: atributos, talentos, efeitos, defesas e dano.</summary>
+/// <remarks>O <see cref="Rulesets.Ruleset"/> monta o analisador da campanha (<see cref="Rulesets.Ruleset.CreateAnalyzer"/>).</remarks>
 public sealed class CharacterAnalyzer(ConditionThreat charmThreat, AbilityScoreAllocator allocator)
 {
-    public CharacterAnalyzer(ConditionThreat charmThreat)
-        : this(charmThreat, AbilityScoreAllocator.Default)
-    {
-    }
-
     public CharacterSheet Analyze(CharacterBuild build, Level level, CombatAssumptions assumptions)
     {
         var archetype = build.Archetype;

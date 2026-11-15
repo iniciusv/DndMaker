@@ -1,4 +1,9 @@
+using DndMaker.Content.Campaigns;
 using DndMaker.Content.Tests.Golden;
+using DndMaker.Domain.Analysis;
+using DndMaker.Domain.Builds;
+using DndMaker.Domain.Combat;
+using DndMaker.Domain.Progression;
 using DndMaker.Domain.Routines;
 
 namespace DndMaker.Content.Tests.Parity;
@@ -16,6 +21,15 @@ public sealed class DivergenceTests
     private static GoldenInput Input(string build, string? variant, string species, string background, string extra, int level,
         Dictionary<int, string>? choices = null) =>
         new(build, variant, species, background, extra, choices ?? [], level, 15);
+
+    /// <summary>A ficha como o programa calcula, com o alocador padrão (a paridade usa o do logic.js).</summary>
+    private static class Program
+    {
+        private static readonly CharacterAnalyzer Analyzer = CurseOfStrahd.Ruleset.CreateAnalyzer();
+
+        public static CharacterSheet Analyze(CharacterBuild build, int level) =>
+            Analyzer.Analyze(build, Level.Of(level), new CombatAssumptions(new ArmorClass(15)));
+    }
 
     private static GoldenCase Golden(GoldenInput input) =>
         GoldenFile.Instance.Cases.Single(c => c.Input.ToString() == input.ToString() && c.Input.G.Count == input.G.Count);
@@ -143,6 +157,43 @@ public sealed class DivergenceTests
         extra.Expected.Should().BeGreaterThan(sheet.Routines[0].Expected);
         Golden(input).Output.Routines.Should().NotContain(r => r.N == extra.Name, "o logic.js não calculava");
         Enum.GetValues<ResourceTier>().Should().OnlyContain(t => sheet.Best(t)!.Routine.Situation == null, "opcionais não entram no melhor turno");
+    }
+
+    [Fact]
+    public void Diverge_8_antecedente_divide_o_bonus_para_nao_desperdicar_modificador()
+    {
+        // Bardo das Espadas com Artista: o logic.js dava CAR 17 e DES 15; CAR 16 e DES 16 dão +1 em DES.
+        var input = Input("swords", "melee", "humano", "artista", "alert", 1);
+        var golden = Golden(input).Output;
+        var sheet = Program.Analyze(GoldenAdapter.ToBuild(input), 1);
+
+        golden.Sc.Should().Equal(8, 15, 13, 10, 12, 17);
+        golden.BgApplied.Should().Be("CAR +2, DES +1");
+        sheet.Allocation.BackgroundBonus.ToString().Should().Be("DES +2, CAR +1");
+        GoldenAdapter.Project(sheet).Sc.Should().Equal(8, 16, 13, 10, 12, 16);
+        sheet.Armor.Value.Value.Should().Be(golden.Ac.V + 1, "couro batido soma DES");
+        sheet.Initiative.Should().Be(golden.Init + 1);
+    }
+
+    [Fact]
+    public void Diverge_8_o_aumento_do_nivel_4_chega_ao_mesmo_lugar()
+    {
+        var input = Input("swords", "melee", "humano", "artista", "alert", 4);
+
+        GoldenAdapter.Project(Program.Analyze(GoldenAdapter.ToBuild(input), 4)).Sc.Should().Equal(Golden(input).Output.Sc);
+    }
+
+    [Fact]
+    public void Diverge_8_a_divisao_olha_o_plano_inteiro()
+    {
+        // Guerreiro 1 → Bruxo com Haunted One. Só com aumentos de atributo, CAR 16 e CON 16 (melhor no começo);
+        // com Fey Touched no 5, a divisão do logic.js (CAR 17 → 18) termina melhor que CAR 16 → 17.
+        var plain = Input("fwl", "defense", "humano", "haunted", "alert", 5);
+        var fey = Input("fwl", "defense", "humano", "haunted", "alert", 5, new() { [5] = "fey" });
+
+        Program.Analyze(GoldenAdapter.ToBuild(plain), 1).Allocation.BackgroundBonus.ToString().Should().Be("CON +2, CAR +1");
+        Program.Analyze(GoldenAdapter.ToBuild(fey), 1).Allocation.BackgroundBonus.ToString().Should().Be("CAR +2, CON +1");
+        Program.Analyze(GoldenAdapter.ToBuild(fey), 5).Allocation.Picks.Single().ChangesText.Should().Be("CAR 17 → 18");
     }
 
     [Fact]
