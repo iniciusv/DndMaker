@@ -27,7 +27,7 @@ public sealed class QueryTests
 
         catalog.MaxLevel.Should().Be(10);
         catalog.HighlightLevels.Should().Equal(5, 6);
-        catalog.Archetypes.Should().HaveCount(10);
+        catalog.Archetypes.Should().HaveCount(11);
         catalog.Archetypes[0].Should().Match<ArchetypeOptionDto>(a => a.Id == "fwl" && a.IsFinalist && a.Status == "finalista");
         catalog.Archetypes[0].FeatLevels.Should().Equal(5, 9);
         catalog.Archetypes.Single(a => a.Id == "bm").FeatLevels.Should().Equal(4, 6, 8);
@@ -136,7 +136,7 @@ public sealed class QueryTests
         overview.ExtraOriginFeatName.Should().Be("Lucky", "a legenda diz qual talento extra as tabelas usam (fase 6, problema 5)");
         overview.SpeciesName.Should().Be("Humano");
         overview.MaxTierName.Should().Be("com magia de concentração");
-        overview.Rows.Select(r => r.ArchetypeId).Should().Equal("fwl", "valor", "pal", "twi", "gloom", "lock", "swords", "fval", "shadow", "bm");
+        overview.Rows.Select(r => r.ArchetypeId).Should().Equal("fwl", "valor", "pal", "twi", "gloom", "lock", "swords", "fval", "ancients", "shadow", "bm");
 
         var paladin = overview.Rows.Single(r => r.ArchetypeId == "pal");
         paladin.Should().Match<OverviewRowDto>(r => r.ArmorClass == 19 && r.HitPoints == 39 && r.Initiative == 0
@@ -160,7 +160,7 @@ public sealed class QueryTests
 
         grid.Levels.Should().Equal(Enumerable.Range(1, 10));
         grid.HighlightLevels.Should().Equal(5, 6);
-        grid.Rows.Should().HaveCount(10).And.OnlyContain(r => r.Expected.Count == 10);
+        grid.Rows.Should().HaveCount(11).And.OnlyContain(r => r.Expected.Count == 10);
         grid.Rows.Single(r => r.ArchetypeId == "shadow").Expected[4].Should().BeApproximately(22.4, Tolerance);
         grid.Max.Should().Be(grid.Rows.SelectMany(r => r.Expected).Max());
 

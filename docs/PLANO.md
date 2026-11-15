@@ -51,7 +51,7 @@ DNDMaker/
 ├─ docs/PLANO.md
 ├─ src/
 │  ├─ DndMaker.Domain/            regras genéricas de D&D 2024, sem dependências
-│  ├─ DndMaker.Content/           as 10 builds, espécies, antecedentes, talentos, campanha
+│  ├─ DndMaker.Content/           as builds (10 do original + Paladino Ancients), espécies, antecedentes, talentos, campanha
 │  ├─ DndMaker.Application/       casos de uso, DTOs, interfaces de repositório
 │  ├─ DndMaker.Infrastructure/    gravação em JSON, registro de dependências
 │  └─ DndMaker.Desktop/           Avalonia: Views, ViewModels, tema, fontes
@@ -350,7 +350,7 @@ Outras mudanças: o `App` só monta os serviços no modo desktop (nos testes sem
 1. **Paridade:** `node tools/golden/export-golden.js` gera ~5.000 casos; `Content.Tests` compara com tolerância de 1e-9.
 2. **Diferenças propositais:** testes `Diverge_*` com comentário; nos casos afetados, só o campo que muda sai da comparação (`KnownDivergences`).
 3. **Unidade:** d20 contra enumeração, `Dice`, modificadores, alocador, regras do `CharacterBuild`.
-4. **Exaustivo:** as 1.040.000 combinações do `test.js` (1.092.000 depois da variante de bordão do problema 4).
+4. **Exaustivo:** as 1.040.000 combinações do `test.js` (1.092.000 depois da variante de bordão do problema 4; 1.144.000 com o Paladino Ancients).
 5. **ViewModels:** `Avalonia.Headless`.
 
 ## 10. Clean Code
@@ -399,6 +399,13 @@ Outras mudanças: o `App` só monta os serviços no modo desktop (nos testes sem
 A paridade continua comparando todos os 5.020 casos: `KnownDivergences` ajusta só o campo que cada correção muda e, quando dá, confere o número antigo por outro caminho (a chance só com Countercharm, o melhor turno do JS sem a rotina situacional). O `golden.json` não muda: ele é o retrato do `logic.js`.
 
 Decisão registrada: o dano extra das espécies ficou como rotina opcional, fora do melhor turno, para não mudar a comparação entre builds; contar ou não no melhor turno pode virar uma opção da tela nos extras.
+
+### 12.2 Depois da fase 6
+
+- **Survivor com Countercharm:** o bônus do Survivor que não salvou a primeira rolagem continua guardado e vale na rerrolagem (`D20Check.SuccessWith`), conferido contra a enumeração de todas as rolagens.
+- **Paladino (Ancients)** (`Archetypes/AncientsPaladin.cs`, id `ancients`), a 11ª build, com as builds em análise. Espadão com Great Weapon Fighting a partir do 2, sem escudo; Divine Smite e "… contra morto-vivo" como no Watchers; Moonbeam (concentração, 2d10 radiante, metade no sucesso) a partir do 5; Aura of Protection no 6; Aura of Warding no 7, mostrada na linha da armadura. Antecedente sugerido: Soldado. Graze, Savage Attacker, Nature's Wrath e Ensnaring Strike não entram na conta.
+- **Face mínima nos dados:** `Dice.WithMinimumFace` (um d6 com mínimo 3 tem média 4), usada pelo GWF só nos dados da arma, não no smite. O texto da fórmula não mostra o mínimo; a nota da rotina explica.
+- **Builds sem golden:** o Ancients não existia no `logic.js`. `GoldenParityTests.BuildsWithoutGolden` o tira da comparação de ordem com o golden, e `AncientsPaladinTests` confere os números à mão.
 
 ## 13. Extras
 

@@ -4,7 +4,10 @@ using DndMaker.Domain.Builds;
 
 namespace DndMaker.Content.Catalog;
 
-/// <summary>As dez builds, na ordem da página original (finalistas primeiro).</summary>
+/// <summary>
+/// As builds na ordem da página original (finalistas primeiro). O Paladino (Ancients) foi acrescentado depois,
+/// com as builds em análise, e não tem golden.
+/// </summary>
 public static class ArchetypeCatalog
 {
     public static ImmutableArray<BuildArchetype> All { get; } =
@@ -17,6 +20,7 @@ public static class ArchetypeCatalog
         new EldritchWarlock(),
         new SwordsBard(),
         new FighterValorBard(),
+        new AncientsPaladin(),
         new ShadowSorcerer(),
         new BattleMasterFighter(),
     ];

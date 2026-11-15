@@ -15,10 +15,20 @@ public sealed class GoldenParityTests
 
     public static TheoryData<string> Builds => [.. GoldenFile.Instance.Meta.Builds];
 
+    /// <summary>Builds acrescentadas depois do logic.js: não têm golden e são testadas à parte.</summary>
+    public static readonly IReadOnlySet<string> BuildsWithoutGolden = new HashSet<string>(StringComparer.Ordinal) { "ancients" };
+
     [Fact]
     public void Pacote_de_regras_tem_as_builds_do_golden_na_mesma_ordem()
     {
-        CurseOfStrahd.Ruleset.Archetypes.Select(a => a.Id.Value).Should().Equal(GoldenFile.Instance.Meta.Builds);
+        CurseOfStrahd.Ruleset.Archetypes.Select(a => a.Id.Value).Where(id => !BuildsWithoutGolden.Contains(id))
+            .Should().Equal(GoldenFile.Instance.Meta.Builds);
+    }
+
+    [Fact]
+    public void Builds_sem_golden_existem_no_pacote_de_regras()
+    {
+        CurseOfStrahd.Ruleset.Archetypes.Select(a => a.Id.Value).Should().Contain(BuildsWithoutGolden);
     }
 
     [Theory]

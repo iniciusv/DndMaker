@@ -37,6 +37,39 @@ public sealed class DiceTests
         (3 * Dice.D8).Should().Be(new Dice(3, 8));
         (3 * Dice.D8).ToString().Should().Be("3d8");
     }
+
+    [Theory]
+    [InlineData(1, 6, 3, 4.0)]
+    [InlineData(2, 6, 3, 8.0)]
+    [InlineData(1, 12, 3, 6.75)]
+    [InlineData(1, 8, 1, 4.5)]
+    [InlineData(1, 4, 4, 4.0)]
+    public void Face_minima_bate_com_a_enumeracao(int count, int sides, int minimum, double expected)
+    {
+        var perDie = Enumerable.Range(1, sides).Average(face => Math.Max(face, minimum));
+        var dice = new Dice(count, sides).WithMinimumFace(minimum);
+
+        dice.Average.Should().BeApproximately(count * perDie, 1e-12);
+        dice.Average.Should().BeApproximately(expected, 1e-12);
+    }
+
+    [Fact]
+    public void Face_minima_sobrevive_a_multiplicacao_e_1_e_o_mesmo_que_nenhuma()
+    {
+        (2 * Dice.D6.WithMinimumFace(3)).Should().Be(new Dice(2, 6).WithMinimumFace(3));
+        Dice.D8.WithMinimumFace(1).Should().Be(Dice.D8);
+        Dice.D6.WithMinimumFace(3).Should().NotBe(Dice.D6);
+        Dice.D6.WithMinimumFace(3).ToString().Should().Be("1d6");
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(7)]
+    public void Face_minima_fora_do_dado_e_recusada(int minimum)
+    {
+        var create = () => Dice.D6.WithMinimumFace(minimum);
+        create.Should().Throw<ArgumentOutOfRangeException>();
+    }
 }
 
 public sealed class DamageFormulaTests
