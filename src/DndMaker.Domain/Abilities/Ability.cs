@@ -26,6 +26,18 @@ public static class AbilityList
 
     public static bool IsMental(this Ability ability) => AbilitySet.Mental.Contains(ability);
 
+    /// <summary>Sigla em português, como na ficha: FOR, DES, CON, INT, SAB, CAR.</summary>
+    public static string Abbreviation(this Ability ability) => ability switch
+    {
+        Ability.Strength => "FOR",
+        Ability.Dexterity => "DES",
+        Ability.Constitution => "CON",
+        Ability.Intelligence => "INT",
+        Ability.Wisdom => "SAB",
+        Ability.Charisma => "CAR",
+        _ => throw new ArgumentOutOfRangeException(nameof(ability), ability, "Atributo inexistente."),
+    };
+
     internal static int Index(this Ability ability)
     {
         var index = (int)ability;

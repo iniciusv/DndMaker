@@ -33,6 +33,9 @@ public sealed record CharacterSheet
     /// <summary>Bônus que as auras somam a todos os testes de resistência.</summary>
     public required int SaveBonus { get; init; }
 
+    /// <summary>De onde vem o <see cref="SaveBonus"/> (ex.: Aura of Protection).</summary>
+    public ImmutableArray<string> SaveBonusSources { get; init; } = [];
+
     public required ThreatResistance Charm { get; init; }
 
     /// <summary>Nulo para builds sem magias de concentração.</summary>
@@ -98,6 +101,7 @@ public sealed class CharacterAnalyzer(ConditionThreat charmThreat, AbilityScoreA
             Darkvision = traits.Darkvision(build.Species.Darkvision),
             SavingThrows = saves,
             SaveBonus = saveBonus,
+            SaveBonusSources = [.. traits.SaveAuras.Select(aura => aura.Name)],
             Charm = DefenseCalculator.Resist(charmThreat, saves, traits),
             Concentration = archetype.Profile.UsesConcentration
                 ? DefenseCalculator.Concentration(saves[Ability.Constitution], traits)

@@ -49,58 +49,58 @@ public sealed class FighterWarlockBlade() : BuildArchetype(Definition)
         Cons = "Sem proficiência em Sabedoria. Nível 1 fraco. Só 2 espaços de magia por descanso curto.",
     };
 
-    private static int WarlockLevel(BuildContext c) => c.LevelIn(ClassCatalog.Warlock);
+    private static int WarlockLevel(BuildContext context) => context.LevelIn(ClassCatalog.Warlock);
 
     /// <summary>Círculo dos espaços de pacto: metade do nível de bruxo, arredondada para cima, até 5.</summary>
-    private static int PactSlotLevel(BuildContext c) => Math.Min(5, (WarlockLevel(c) + 1) / 2);
+    private static int PactSlotLevel(BuildContext context) => Math.Min(5, (WarlockLevel(context) + 1) / 2);
 
-    public override IEnumerable<Effect> FeaturesAt(BuildContext c)
+    public override IEnumerable<Effect> FeaturesAt(BuildContext context)
     {
-        if (WarlockLevel(c) >= 2)
+        if (WarlockLevel(context) >= 2)
         {
             yield return new DarkvisionGrant(Meters.Of(36), DarkvisionKind.Minimum, "Devil's Sight: enxerga também em escuridão mágica");
         }
     }
 
-    public override ArmorSetup ArmorAt(BuildContext c)
+    public override ArmorSetup ArmorAt(BuildContext context)
     {
-        var defense = c.IsVariant(Defense);
-        var armor = ArmorTable.Wear(ArmorTable.ChainMail, c.Mod(Dexterity), shield: true, bonus: defense ? 1 : 0, suffix: defense ? " + Defense" : null);
-        return WarlockLevel(c) >= 1
-            ? armor with { Extra = $"Armor of Agathys: +{5 * PactSlotLevel(c)} PV temporários, sem concentração" }
+        var defense = context.IsVariant(Defense);
+        var armor = ArmorTable.Wear(ArmorTable.ChainMail, context.Mod(Dexterity), shield: true, bonus: defense ? 1 : 0, suffix: defense ? " + Defense" : null);
+        return WarlockLevel(context) >= 1
+            ? armor with { Extra = $"Armor of Agathys: +{5 * PactSlotLevel(context)} PV temporários, sem concentração" }
             : armor;
     }
 
-    public override IEnumerable<AttackRoutine> RoutinesAt(BuildContext c)
+    public override IEnumerable<AttackRoutine> RoutinesAt(BuildContext context)
     {
-        var dueling = c.IsVariant(Dueling) ? 2 : 0;
-        if (WarlockLevel(c) == 0)
+        var dueling = context.IsVariant(Dueling) ? 2 : 0;
+        if (WarlockLevel(context) == 0)
         {
             yield return AttackRoutine.AtWill("Espada longa (ainda com Força)",
-                new AttackStep(1, c.AttackBonus(Strength), Dice.D8 + (c.Mod(Strength) + dueling)));
+                new AttackStep(1, context.AttackBonus(Strength), Dice.D8 + (context.Mod(Strength) + dueling)));
             yield break;
         }
 
-        var hit = c.AttackBonus(Charisma);
-        var attacks = WarlockLevel(c) >= 5 ? 2 : 1; // Thirsting Blade
-        var sword = Dice.D8 + (c.Mod(Charisma) + dueling);
+        var hit = context.AttackBonus(Charisma);
+        var attacks = WarlockLevel(context) >= 5 ? 2 : 1; // Thirsting Blade
+        var sword = Dice.D8 + (context.Mod(Charisma) + dueling);
         var weapon = new AttackStep(attacks, hit, sword);
 
         yield return AttackRoutine.AtWill("Arma do pacto (espada longa)", weapon);
-        if (c.Level == 5)
+        if (context.Level == 5)
         {
             yield return AttackRoutine.AtWill("True Strike com a arma do pacto", new AttackStep(1, hit, sword + Dice.D6))
                 .WithNote("Vale até o Extra Attack chegar no nível 6.");
         }
 
         yield return AttackRoutine.Concentration("Arma do pacto + Hex", new AttackStep(attacks, hit, sword + Dice.D6));
-        if (WarlockLevel(c) >= 5)
+        if (WarlockLevel(context) >= 5)
         {
-            yield return AttackRoutine.Peak("Arma do pacto + Eldritch Smite", weapon, new RiderStep(weapon, (PactSlotLevel(c) + 1) * Dice.D8))
+            yield return AttackRoutine.Peak("Arma do pacto + Eldritch Smite", weapon, new RiderStep(weapon, (PactSlotLevel(context) + 1) * Dice.D8))
                 .WithNote("Gasta um espaço de pacto e derruba o alvo.");
         }
 
-        var agonizing = WarlockLevel(c) >= 2 ? c.Mod(Charisma) : 0;
-        yield return AttackRoutine.AtWill("Eldritch Blast (à distância)", new AttackStep(c.CantripDice, hit, Dice.D10 + agonizing));
+        var agonizing = WarlockLevel(context) >= 2 ? context.Mod(Charisma) : 0;
+        yield return AttackRoutine.AtWill("Eldritch Blast (à distância)", new AttackStep(context.CantripDice, hit, Dice.D10 + agonizing));
     }
 }

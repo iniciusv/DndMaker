@@ -54,14 +54,14 @@ public sealed class ValorBard() : BuildArchetype(Definition)
         Cons = "Sabedoria e Constituição fracas nos testes. A party já tem um bardo. Dano modesto até o nível 6.",
     };
 
-    public override IEnumerable<Effect> FeaturesAt(BuildContext c)
+    public override IEnumerable<Effect> FeaturesAt(BuildContext context)
     {
-        if (c.Level >= 2)
+        if (context.Level >= 2)
         {
             yield return new InitiativeBonus(InitiativeAmount.HalfProficiencyBonus); // Jack of All Trades
         }
 
-        if (c.Level >= 7)
+        if (context.Level >= 7)
         {
             foreach (var effect in ArchetypeRules.Countercharm())
             {
@@ -70,31 +70,31 @@ public sealed class ValorBard() : BuildArchetype(Definition)
         }
     }
 
-    public override ArmorSetup ArmorAt(BuildContext c) =>
-        c.Level < 3
-            ? ArmorTable.Wear(ArmorTable.StuddedLeather, c.Mod(Dexterity), shield: false)
-            : ArchetypeRules.MediumOrLight(c, shield: !c.IsVariant(Bow));
+    public override ArmorSetup ArmorAt(BuildContext context) =>
+        context.Level < 3
+            ? ArmorTable.Wear(ArmorTable.StuddedLeather, context.Mod(Dexterity), shield: false)
+            : ArchetypeRules.MediumOrLight(context, shield: !context.IsVariant(Bow));
 
-    public override IEnumerable<AttackRoutine> RoutinesAt(BuildContext c)
+    public override IEnumerable<AttackRoutine> RoutinesAt(BuildContext context)
     {
-        var shillelagh = c.Has(FeatCatalog.MagicInitiateDruid.Id) && c.IsVariant(Staff);
-        var melee = !c.IsVariant(Bow);
+        var shillelagh = context.Has(FeatCatalog.MagicInitiateDruid.Id) && context.IsVariant(Staff);
+        var melee = !context.IsVariant(Bow);
 
-        var (weaponName, weaponDie) = (shillelagh, c.Level >= 3) switch
+        var (weaponName, weaponDie) = (shillelagh, context.Level >= 3) switch
         {
-            (true, _) => ("bordão com Shillelagh", ArchetypeRules.ShillelaghDie(c)),
+            (true, _) => ("bordão com Shillelagh", ArchetypeRules.ShillelaghDie(context)),
             (false, false) => melee ? ("maça", Dice.D6) : ("besta leve", Dice.D8),
             (false, true) => melee ? ("rapieira", Dice.D8) : ("arco longo", Dice.D8),
         };
 
-        var trueStrike = new AttackStep(1, c.AttackBonus(Charisma), weaponDie + c.Mod(Charisma) + ArchetypeRules.TrueStrikeExtra(c));
+        var trueStrike = new AttackStep(1, context.AttackBonus(Charisma), weaponDie + context.Mod(Charisma) + ArchetypeRules.TrueStrikeExtra(context));
         yield return AttackRoutine.AtWill($"True Strike ({weaponName})", trueStrike).WithNote("Todo o dano pode ser radiante.");
 
-        if (c.Level >= 6)
+        if (context.Level >= 6)
         {
             var attack = shillelagh
-                ? new AttackStep(1, c.AttackBonus(Charisma), weaponDie + c.Mod(Charisma))
-                : new AttackStep(1, c.AttackBonus(Dexterity), weaponDie + c.Mod(Dexterity));
+                ? new AttackStep(1, context.AttackBonus(Charisma), weaponDie + context.Mod(Charisma))
+                : new AttackStep(1, context.AttackBonus(Dexterity), weaponDie + context.Mod(Dexterity));
             yield return AttackRoutine.AtWill($"Ataque + True Strike ({weaponName})", attack, trueStrike);
         }
     }

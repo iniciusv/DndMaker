@@ -48,31 +48,31 @@ public sealed class WatchersPaladin() : BuildArchetype(Definition)
         Cons = "A party já tem um paladino. Poucos espaços de magia. Quase sem ataque à distância.",
     };
 
-    public override IEnumerable<Effect> FeaturesAt(BuildContext c)
+    public override IEnumerable<Effect> FeaturesAt(BuildContext context)
     {
-        if (c.Level >= 6)
+        if (context.Level >= 6)
         {
             yield return new SaveAura(Charisma, 1, "Aura of Protection");
         }
     }
 
-    public override ArmorSetup ArmorAt(BuildContext c)
+    public override ArmorSetup ArmorAt(BuildContext context)
     {
-        var defense = c.IsVariant(Defense);
+        var defense = context.IsVariant(Defense);
         return ArmorTable.Wear(
-            c.Level >= 5 ? ArmorTable.Splint : ArmorTable.ChainMail,
-            c.Mod(Dexterity),
+            context.Level >= 5 ? ArmorTable.Splint : ArmorTable.ChainMail,
+            context.Mod(Dexterity),
             shield: true,
             bonus: defense ? 1 : 0,
             suffix: defense ? " + Defense" : null);
     }
 
-    public override IEnumerable<AttackRoutine> RoutinesAt(BuildContext c)
+    public override IEnumerable<AttackRoutine> RoutinesAt(BuildContext context)
     {
-        var dueling = c.IsVariant(Dueling) ? 2 : 0;
-        var sword = new AttackStep(c.Level >= 5 ? 2 : 1, c.AttackBonus(Strength), Dice.D8 + (c.Mod(Strength) + dueling));
+        var dueling = context.IsVariant(Dueling) ? 2 : 0;
+        var sword = new AttackStep(context.Level >= 5 ? 2 : 1, context.AttackBonus(Strength), Dice.D8 + (context.Mod(Strength) + dueling));
         yield return AttackRoutine.AtWill("Espada longa", sword);
-        if (c.Level < 2)
+        if (context.Level < 2)
         {
             yield break;
         }

@@ -1,0 +1,55 @@
+using DndMaker.Content.Campaigns;
+using DndMaker.Content.Tests.Golden;
+
+namespace DndMaker.Content.Tests.Parity;
+
+/// <summary>
+/// Paridade com o motor original: cada caso de tools/golden/golden.json, calculado pelo logic.js,
+/// tem de sair igual no C#. Um teste por build, que lista todos os casos e campos diferentes.
+/// </summary>
+public sealed class GoldenParityTests
+{
+    /// <summary>Quantas diferenças mostrar na mensagem de falha.</summary>
+    private const int MaxReported = 25;
+
+    public static TheoryData<string> Builds => [.. GoldenFile.Instance.Meta.Builds];
+
+    [Fact]
+    public void Pacote_de_regras_tem_as_builds_do_golden_na_mesma_ordem()
+    {
+        CurseOfStrahd.Ruleset.Archetypes.Select(a => a.Id.Value).Should().Equal(GoldenFile.Instance.Meta.Builds);
+    }
+
+    [Theory]
+    [MemberData(nameof(Builds))]
+    public void Build_bate_com_o_logic_js(string build)
+    {
+        var cases = GoldenFile.Instance.Cases.Where(c => c.Input.B == build).ToList();
+        cases.Should().NotBeEmpty();
+
+        var failures = cases
+            .SelectMany(c => Compare(c).Select(diff => $"{c.Input}: {diff}"))
+            .ToList();
+
+        failures.Should().BeEmpty(
+            "{0} de {1} casos de {2} divergem do logic.js. Primeiras diferenças:\n{3}",
+            failures.Select(f => f[..f.IndexOf(": ", StringComparison.Ordinal)]).Distinct().Count(),
+            cases.Count,
+            build,
+            string.Join("\n", failures.Take(MaxReported)));
+    }
+
+    private static IEnumerable<string> Compare(GoldenCase golden)
+    {
+        try
+        {
+            return GoldenComparer.Differences(golden.Output, GoldenAdapter.Project(GoldenAdapter.Analyze(golden.Input)));
+        }
+#pragma warning disable CA1031 // Uma exceção num caso vira uma diferença relatada, sem esconder os outros casos.
+        catch (Exception ex)
+#pragma warning restore CA1031
+        {
+            return [$"exceção {ex.GetType().Name}: {ex.Message}"];
+        }
+    }
+}

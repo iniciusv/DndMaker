@@ -18,6 +18,7 @@
     <Project Path="tests/DndMaker.Domain.Tests/DndMaker.Domain.Tests.csproj" />
     <Project Path="tests/DndMaker.Content.Tests/DndMaker.Content.Tests.csproj" />
     <Project Path="tests/DndMaker.Application.Tests/DndMaker.Application.Tests.csproj" />
+    <Project Path="tests/DndMaker.Infrastructure.Tests/DndMaker.Infrastructure.Tests.csproj" />
     <Project Path="tests/DndMaker.Desktop.Tests/DndMaker.Desktop.Tests.csproj" />
   </Folder>
   <Folder Name="/tools/">

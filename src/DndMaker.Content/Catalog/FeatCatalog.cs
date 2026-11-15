@@ -105,4 +105,18 @@ public static class FeatCatalog
         Healer, Musician, TavernBrawler, Crafter, Survivor, SharpEye, MistWalker, GatheredWhispers,
         FeyTouched, WarCaster, ResilientConstitution, ResilientWisdom, CrossbowExpert, Sharpshooter,
     ];
+
+    /// <summary>Talentos oferecidos como talento extra do humano, na ordem da página original.</summary>
+    public static ImmutableArray<Feat> ExtraOriginChoices { get; } =
+    [
+        Alert, Lucky, MagicInitiateWizard, MagicInitiateDruid, MagicInitiateCleric, Tough,
+        Skilled, SavageAttacker, Survivor, SharpEye, Healer, Musician,
+    ];
+
+    /// <summary>Talentos oferecidos nos níveis de talento, além do aumento de atributo.</summary>
+    public static ImmutableArray<Feat> LevelChoices { get; } =
+    [
+        FeyTouched, WarCaster, ResilientConstitution, ResilientWisdom, CrossbowExpert, Sharpshooter,
+        Alert, Lucky, Tough,
+    ];
 }

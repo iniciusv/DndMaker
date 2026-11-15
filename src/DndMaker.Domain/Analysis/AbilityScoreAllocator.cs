@@ -8,12 +8,24 @@ using DndMaker.Domain.Progression;
 namespace DndMaker.Domain.Analysis;
 
 /// <summary>Bônus do antecedente: +2 em <see cref="Major"/> e +1 em <see cref="Minor"/>.</summary>
-public sealed record BackgroundBonus(Ability Major, Ability Minor);
+public sealed record BackgroundBonus(Ability Major, Ability Minor)
+{
+    /// <summary>Texto da ficha: <c>CAR +2, CON +1</c>.</summary>
+    public override string ToString() => $"{Major.Abbreviation()} +2, {Minor.Abbreviation()} +1";
+}
 
-public sealed record ScoreChange(Ability Ability, int From, int To);
+public sealed record ScoreChange(Ability Ability, int From, int To)
+{
+    /// <summary>Texto da ficha: <c>CAR 17 → 18</c>.</summary>
+    public override string ToString() => $"{Ability.Abbreviation()} {From} → {To}";
+}
 
 /// <summary>O que aconteceu num nível de talento.</summary>
-public sealed record LevelPick(int Level, LevelChoice Choice, ImmutableArray<ScoreChange> Changes);
+public sealed record LevelPick(int Level, LevelChoice Choice, ImmutableArray<ScoreChange> Changes)
+{
+    /// <summary>As mudanças de atributo separadas por vírgula; vazio se o talento não aumenta atributo.</summary>
+    public string ChangesText => string.Join(", ", Changes);
+}
 
 public sealed record AbilityAllocation(
     AbilityMap<AbilityScore> Scores,

@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Gravação em JSON num diretório temporário e o ciclo completo de fechar e abrir. -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\DndMaker.Infrastructure\DndMaker.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\DndMaker.Content\DndMaker.Content.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
+</Project>

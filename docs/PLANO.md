@@ -9,8 +9,8 @@ Programa de desktop que recria o comparador "Builds para Barovia" ([Artefato Bas
 | 0. Base | **Concluída em 2026-11-14** |
 | 1. Núcleo do domínio | **Concluída em 2026-11-14** |
 | 2. Modelo do domínio | **Concluída em 2026-11-14** |
-| 3. Conteúdo e paridade | A fazer |
-| 4. Application e Infrastructure | A fazer |
+| 3. Conteúdo e paridade | **Concluída em 2026-11-15** |
+| 4. Application e Infrastructure | **Concluída em 2026-11-15** |
 | 5. Interface | A fazer |
 | 6. Correções | A fazer |
 | 7. Extras | Opcional |
@@ -59,6 +59,7 @@ DNDMaker/
 │  ├─ DndMaker.Domain.Tests/
 │  ├─ DndMaker.Content.Tests/     paridade com o JS
 │  ├─ DndMaker.Application.Tests/
+│  ├─ DndMaker.Infrastructure.Tests/
 │  └─ DndMaker.Desktop.Tests/
 └─ tools/golden/                  export-golden.js e golden.json
 ```
@@ -67,8 +68,9 @@ As dependências só apontam para dentro:
 
 ```
 Desktop ──► Application ──► Domain ◄── Content
-   │             ▲
-   └──► Infrastructure
+   │  │          ▲                        ▲
+   │  └──► Infrastructure                 │
+   └──────────────────────────────────────┘
 ```
 
 - `Domain` não referencia nada. Conhece d20, atributos, efeitos e rotinas, mas não sabe o que é Strahd.
@@ -251,6 +253,25 @@ Preparado para as correções da fase 6, sem mudar a paridade ainda:
 - `Campaigns/CurseOfStrahd.cs`: fases, CD 17 e as notas da página.
 - `AddCurseOfStrahdContent(IServiceCollection)`.
 
+### 5.1 Como ficou na fase 3
+
+| Plano | Implementado |
+|---|---|
+| Espécies, antecedentes, talentos | `src/DndMaker.Content/Catalog/` (`SpeciesCatalog`, `BackgroundCatalog`, `FeatCatalog`, `ClassCatalog`), na ordem da página |
+| Uma classe por build | `src/DndMaker.Content/Archetypes/` (10 builds); regras repetidas em `ArchetypeRules` (Shillelagh, True Strike, armadura média, Mage Armor, Countercharm) |
+| Campanha | `Campaigns/CurseOfStrahd.cs`: `Campaign` (charme CD 17 SAB, níveis 1–10, destaque 5–6, CAs 13/15/16/18) e o `Ruleset` completo |
+| Catálogo para a Application | `Domain/Rulesets/Ruleset.cs`: listas na ordem de exibição, busca por id em `FrozenDictionary` e validação das referências na criação. A Application vai depender só dele, não do Content |
+| Registro | `AddCurseOfStrahdContent()` registra `Ruleset` e `Campaign` |
+| Textos da ficha | `Ability.Abbreviation()` (FOR…CAR), `BackgroundBonus.ToString()` ("CAR +2, CON +1"), `LevelPick.ChangesText` ("CAR 17 → 18") |
+| Paridade | `tests/DndMaker.Content.Tests/Parity/`: um teste por build compara os 5.020 casos do golden campo a campo (tolerância 1e-9) e lista cada diferença |
+| Exaustivo | `ExhaustiveTests`: as 1.040.000 combinações do `test.js`, em paralelo (cerca de 3 s) |
+
+Decisões e observações:
+
+- Os textos continuam em C#, sem `Content.pt-BR.resx` (decisão 1); a interface é só em português.
+- O `fval` reproduz o problema 4 de propósito (Shillelagh só por ter Magic Initiate, sem variante), com comentário no código.
+- O paladino mantém "… contra morto-vivo" sem `Situation.VsUndead` (problema 2), e nenhum conteúdo ganhou `ConditionRecovery` de Lucky ou Survivor (problema 1). As duas coisas mudam na fase 6.
+
 ## 6. Application
 
 | Caso de uso | Retorno |
@@ -265,6 +286,28 @@ Preparado para as correções da fase 6, sem mudar a paridade ainda:
 
 - `JsonComparisonRepository` em `%AppData%/DndMaker/comparison.json`, `System.Text.Json` com source generator, `schemaVersion` e limpeza ao carregar.
 - Salvamento automático 500 ms após a última mudança.
+
+### 7.1 Como ficou na fase 4
+
+| Plano | Implementado |
+|---|---|
+| Catálogo para os seletores | `Application/Catalog/GetCatalogQuery` → `CatalogDto` (builds com variantes e níveis de talento, espécies, antecedentes com o rótulo "Nobre · FOR, INT, CAR · Skilled", talentos extras, escolhas de nível, CAs, faixas, fases e notas). Calculado uma vez |
+| Cartas | `Comparison/AnalyzeComparisonQuery` → `ComparisonResultDto`: nível com fase e observação, 3 `SheetDto` e `LeadersDto` (nulo no empate) |
+| Ficha da carta | `Sheets/SheetMapper` → `SheetDto` com tudo o que a carta da página mostra, inclusive "visão no escuro a confirmar", aviso de Shillelagh e as auras que somam nos testes |
+| Todas as builds | `Overview/BuildsOverviewQuery`: linhas com as marcas de topo por coluna (empates incluídos, como na página) e a legenda com espécie, talento extra (Lucky) e CA |
+| Dano por nível | `Overview/DamageProgressionQuery`: 10 builds × 10 níveis e o máximo para colorir |
+| Sessão | `Session/ComparisonSession`: única peça com estado; troca a comparação imutável e avisa por `Changed`. Ids em texto vindos da tela |
+| Gravação | `Session/ComparisonPersistence`: restaura ao abrir, grava 500 ms após a última mudança (`TimeProvider`, testado com relógio manual), `FlushAsync` e gravação ao descartar; falhas viram `SaveFailed` |
+| Formato gravado | `ComparisonSnapshot` (só ids em texto); `ComparisonSnapshotMapper` limpa ao carregar: build sumida volta à carta inicial, ids sumidos viram o padrão, nível/CA/faixa fora das opções voltam ao padrão, escolhas inválidas somem |
+| Repositório | `Infrastructure/Persistence/JsonComparisonRepository`: `%AppData%/DndMaker/comparison.json`, source generator, `schemaVersion` 1, escrita em arquivo temporário e troca atômica; arquivo ilegível ou de outra versão vale como "nada gravado" |
+| Registro | `AddCurseOfStrahdContent()`, `AddApplication()`, `AddInfrastructure(caminho?)`, montados no `CompositionRoot`; o `App` restaura antes da primeira tela e grava ao fechar |
+
+Mudanças em relação ao desenho:
+
+- A `Campaign` virou um record com propriedades `required` e ganhou fases, observações por nível, rótulos das CAs, a comparação inicial da página (`ComparisonPreset`), espécie e talentos padrão e as notas "O que já sabemos". O `Ruleset` confere tudo na criação e sabe montar o personagem padrão (`DefaultCharacter`, `OverviewCharacter`) e a comparação inicial.
+- `CharacterSheet.SaveBonusSources` diz de onde vem o bônus nos testes de resistência.
+- Novo projeto `tests/DndMaker.Infrastructure.Tests`, com o teste do critério da fase: editar, fechar o container, abrir outro e ver a mesma comparação.
+- A legenda de "Todas as builds" já informa o talento extra usado (Lucky), o que resolve a parte de exibição do problema 5.
 
 ## 8. Interface
 
