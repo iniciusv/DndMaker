@@ -16,7 +16,7 @@ public sealed class GoldenParityTests
     public static TheoryData<string> Builds => [.. GoldenFile.Instance.Meta.Builds];
 
     /// <summary>Builds acrescentadas depois do logic.js: não têm golden e são testadas à parte.</summary>
-    public static readonly IReadOnlySet<string> BuildsWithoutGolden = new HashSet<string>(StringComparer.Ordinal) { "ancients" };
+    public static readonly IReadOnlySet<string> BuildsWithoutGolden = new HashSet<string>(StringComparer.Ordinal) { "ancients", "devotion" };
 
     [Fact]
     public void Pacote_de_regras_tem_as_builds_do_golden_na_mesma_ordem()

@@ -21,7 +21,11 @@ public sealed record ResistanceDto(
     double ChanceWithoutResources,
     bool Advantage,
     IReadOnlyList<string> Resources,
-    IReadOnlyList<string> Remedies);
+    IReadOnlyList<string> Remedies)
+{
+    /// <summary>De onde vem a imunidade (Aura of Devotion); nulo se o teste for feito.</summary>
+    public string? ImmunitySource { get; init; }
+}
 
 /// <summary>
 /// Uma rotina de dano. <see cref="AttackBonus"/> é o do primeiro ataque (como na página); <see cref="AttackBonuses"/>

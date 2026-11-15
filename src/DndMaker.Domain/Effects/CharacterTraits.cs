@@ -24,7 +24,7 @@ public sealed class CharacterTraits
                 case ArmorClassBonus b: BonusArmorClass += b.Amount; break;
                 case ConcentrationAdvantage: HasConcentrationAdvantage = true; break;
                 case InitiativeBonus or InitiativeAbilityBonus or DarkvisionGrant or SaveAura or ConditionRecovery
-                    or ProficiencyBonusOnFailure or SaveAdvantageResource or ConditionRemedy or ExtraDamageOption: break;
+                    or ProficiencyBonusOnFailure or SaveAdvantageResource or ConditionRemedy or ExtraDamageOption or ConditionImmunity: break;
                 default: throw new DomainException($"Efeito sem tratamento: {effect.GetType().Name}.");
             }
         }
@@ -73,6 +73,10 @@ public sealed class CharacterTraits
     /// <summary>Fontes de vantagem que podem ser gastas num teste de resistência deste atributo (Lucky, Watcher's Will).</summary>
     public IReadOnlyList<string> AdvantageResourcesFor(Ability ability) =>
         [.. _effects.OfType<SaveAdvantageResource>().Where(r => r.Abilities.Contains(ability)).Select(r => r.Source).Distinct()];
+
+    /// <summary>De onde vem a imunidade à condição (Aura of Devotion); nulo se não houver.</summary>
+    public string? ImmunitySourceFor(Condition condition) =>
+        _effects.OfType<ConditionImmunity>().FirstOrDefault(i => i.Condition == condition)?.Source;
 
     /// <summary>O que encerra a condição depois que ela pega (Twilight Sanctuary).</summary>
     public IReadOnlyList<string> RemediesAgainst(Condition condition) =>

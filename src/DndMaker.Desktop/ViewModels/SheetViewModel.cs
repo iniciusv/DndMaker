@@ -251,6 +251,11 @@ internal sealed class SheetViewModel
     /// </summary>
     private static string CharmHint(ResistanceDto charm)
     {
+        if (charm.ImmunitySource is { } immunity)
+        {
+            return $"Imune a Enfeitiçado pela {immunity}: o teste de {Format.AbilityName(charm.Ability)}, CD {charm.Dc}, nem é feito.";
+        }
+
         var hint = $"Teste de {Format.AbilityName(charm.Ability)}, CD {charm.Dc} (ficha de 2016).";
         if (charm.Resources.Count > 0)
         {

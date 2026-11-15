@@ -85,7 +85,10 @@ public static class SheetMapper
         charm.Passive.Value,
         charm.Advantage,
         [.. charm.Resources],
-        [.. charm.Remedies]);
+        [.. charm.Remedies])
+    {
+        ImmunitySource = charm.ImmunitySource,
+    };
 
     private static ResistanceDto Concentration(ConcentrationResult concentration) => new(
         Ability.Constitution.Abbreviation(),

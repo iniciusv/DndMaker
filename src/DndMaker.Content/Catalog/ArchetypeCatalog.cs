@@ -5,8 +5,8 @@ using DndMaker.Domain.Builds;
 namespace DndMaker.Content.Catalog;
 
 /// <summary>
-/// As builds na ordem da página original (finalistas primeiro). O Paladino (Ancients) foi acrescentado depois,
-/// com as builds em análise, e não tem golden.
+/// As builds na ordem da página original (finalistas primeiro). Os paladinos Ancients e Devotion foram
+/// acrescentados depois, com as builds em análise, e não têm golden.
 /// </summary>
 public static class ArchetypeCatalog
 {
@@ -21,6 +21,7 @@ public static class ArchetypeCatalog
         new SwordsBard(),
         new FighterValorBard(),
         new AncientsPaladin(),
+        new DevotionPaladin(),
         new ShadowSorcerer(),
         new BattleMasterFighter(),
     ];

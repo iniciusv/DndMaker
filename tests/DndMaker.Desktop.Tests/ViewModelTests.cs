@@ -103,7 +103,7 @@ public sealed class ViewModelTests : IAsyncDisposable
         _main.Overview.Caption.Should().Contain("CA 13").And.Contain("pico (gasta recurso)")
             .And.Contain("com Lucky como talento extra", "a legenda diz qual talento extra as tabelas usam (fase 6, problema 5)");
         _main.Cards[2].Sheet!.Routines.Should().OnlyContain(r => r.Counted);
-        _main.DamageGrid.Rows.Should().HaveCount(11);
+        _main.DamageGrid.Rows.Should().HaveCount(12);
     }
 
     [Fact]
@@ -176,10 +176,21 @@ public sealed class ViewModelTests : IAsyncDisposable
     }
 
     [Fact]
+    public void Imunidade_ao_charme_aparece_na_carta()
+    {
+        _main.Overview.Items.Single(r => r.ArchetypeId == "devotion").Slots[2].Command.Execute(null);
+        _main.SelectedLevel = _main.Levels[6];
+
+        var charm = _main.Cards[2].Sheet!.Charm;
+        charm.PercentText.Should().Be("100%");
+        charm.Caption.Should().Be("Imune a Enfeitiçado pela Aura of Devotion: o teste de Sabedoria, CD 17, nem é feito.");
+    }
+
+    [Fact]
     public void Tabela_poe_a_build_na_carta_com_as_escolhas_padrao()
     {
         _main.Overview.Title.Should().Be("Todas as builds no nível 5");
-        _main.Overview.Items.Should().HaveCount(11);
+        _main.Overview.Items.Should().HaveCount(12);
         var rows = _main.Overview.Rows;
         var twilight = _main.Overview.Items.Single(r => r.ArchetypeId == "twi");
 
@@ -188,7 +199,7 @@ public sealed class ViewModelTests : IAsyncDisposable
         _main.Cards[1].Sheet!.Name.Should().Be("Clérigo do Crepúsculo");
         _main.Cards[1].SelectedSpecies!.Id.Should().Be("humano");
         _main.Overview.Rows.Should().BeSameAs(rows, "a tabela é atualizada no lugar e mantém a ordenação");
-        _main.Overview.Items.Should().HaveCount(11);
+        _main.Overview.Items.Should().HaveCount(12);
     }
 
     [Fact]

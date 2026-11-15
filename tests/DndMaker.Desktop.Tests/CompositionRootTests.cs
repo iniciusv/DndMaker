@@ -14,7 +14,7 @@ public sealed class CompositionRootTests
 
         await using var services = CompositionRoot.Build(file);
 
-        services.GetRequiredService<Ruleset>().Archetypes.Should().HaveCount(11);
+        services.GetRequiredService<Ruleset>().Archetypes.Should().HaveCount(12);
         services.GetRequiredService<MainViewModel>().Should().NotBeNull();
         await services.GetRequiredService<ComparisonPersistence>().RestoreAsync();
         services.GetRequiredService<ComparisonSession>().Current.Level.Value.Should().Be(5, "sem arquivo, vale a comparação inicial");

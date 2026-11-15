@@ -51,7 +51,7 @@ DNDMaker/
 ├─ docs/PLANO.md
 ├─ src/
 │  ├─ DndMaker.Domain/            regras genéricas de D&D 2024, sem dependências
-│  ├─ DndMaker.Content/           as builds (10 do original + Paladino Ancients), espécies, antecedentes, talentos, campanha
+│  ├─ DndMaker.Content/           as builds (10 do original + paladinos Ancients e Devotion), espécies, antecedentes, talentos, campanha
 │  ├─ DndMaker.Application/       casos de uso, DTOs, interfaces de repositório
 │  ├─ DndMaker.Infrastructure/    gravação em JSON, registro de dependências
 │  └─ DndMaker.Desktop/           Avalonia: Views, ViewModels, tema, fontes
@@ -350,7 +350,7 @@ Outras mudanças: o `App` só monta os serviços no modo desktop (nos testes sem
 1. **Paridade:** `node tools/golden/export-golden.js` gera ~5.000 casos; `Content.Tests` compara com tolerância de 1e-9.
 2. **Diferenças propositais:** testes `Diverge_*` com comentário; nos casos afetados, só o campo que muda sai da comparação (`KnownDivergences`).
 3. **Unidade:** d20 contra enumeração, `Dice`, modificadores, alocador, regras do `CharacterBuild`.
-4. **Exaustivo:** as 1.040.000 combinações do `test.js` (1.092.000 depois da variante de bordão do problema 4; 1.144.000 com o Paladino Ancients).
+4. **Exaustivo:** as 1.040.000 combinações do `test.js` (1.092.000 depois da variante de bordão do problema 4; 1.196.000 com os paladinos Ancients e Devotion).
 5. **ViewModels:** `Avalonia.Headless`.
 
 ## 10. Clean Code
@@ -407,7 +407,9 @@ Decisão registrada: o dano extra das espécies ficou como rotina opcional, fora
 - **Paladino (Ancients)** (`Archetypes/AncientsPaladin.cs`, id `ancients`), a 11ª build, com as builds em análise. Espadão com Great Weapon Fighting a partir do 2, sem escudo; Divine Smite e "… contra morto-vivo" como no Watchers; Moonbeam (concentração, 2d10 radiante, metade no sucesso) a partir do 5; Aura of Protection no 6; Aura of Warding no 7, mostrada na linha da armadura. Antecedente sugerido: Soldado. Graze, Savage Attacker, Nature's Wrath e Ensnaring Strike não entram na conta.
 - **Face mínima nos dados:** `Dice.WithMinimumFace` (um d6 com mínimo 3 tem média 4), usada pelo GWF só nos dados da arma, não no smite. O texto da fórmula não mostra o mínimo; a nota da rotina explica.
 - **Problema 8, divisão do antecedente:** o alocador recebe uma `IBackgroundBonusPolicy`. A do programa (`BestModifiersBackgroundPolicy`) simula a build com cada divisão até o último nível da campanha e fica com a de maiores modificadores lá, na ordem de prioridade; no empate, a que dá mais no nível 1; se ainda empatar, a do logic.js. A divisão vale para a build inteira e é calculada uma vez por build. Com só aumentos de atributo, todas as builds com o antecedente sugerido passam a começar com 16 e 16 em vez de 17 e 15; com Fey Touched no 5, o Guerreiro 1 → Bruxo mantém CAR 17 → 18. O `Ruleset.CreateAnalyzer()` monta o analisador com o último nível da campanha. A paridade e as fixtures do Domain usam `AbilityScoreAllocator.LogicJs`, que copia o logic.js; o novo comportamento é testado em `Diverge_8_*` e `BackgroundBonusPolicyTests`.
-- **Builds sem golden:** o Ancients não existia no `logic.js`. `GoldenParityTests.BuildsWithoutGolden` o tira da comparação de ordem com o golden, e `AncientsPaladinTests` confere os números à mão.
+- **Paladino (Devotion)** (`Archetypes/DevotionPaladin.cs`, id `devotion`), a 12ª build, baseada em Destreza: rapieira e escudo com Dueling a partir do 2, armadura média ou couro batido (`ArchetypeRules.MediumOrLight`); Divine Smite e "… contra morto-vivo" como nos outros paladinos; Sacred Weapon no 3 como rotina de pico (+ CAR no ataque, mínimo +1); Aura of Protection no 6; Aura of Devotion no 7. Antecedente sugerido: Andarilho, que dá Lucky e DES/CAR. Vex não entra na conta.
+- **Imunidade a condição:** efeito `ConditionImmunity`. Com ele, `DefenseCalculator.Resist` devolve 100% nas duas chances, sem gastar recursos, e `ThreatResistance.ImmunitySource` diz de onde vem; a carta mostra "Imune a Enfeitiçado pela Aura of Devotion".
+- **Builds sem golden:** Ancients e Devotion não existiam no `logic.js`. `GoldenParityTests.BuildsWithoutGolden` os tira da comparação de ordem com o golden, e `AncientsPaladinTests` e `DevotionPaladinTests` conferem os números à mão.
 
 ## 13. Extras
 

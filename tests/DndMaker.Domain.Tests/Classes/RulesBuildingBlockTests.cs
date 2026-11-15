@@ -135,4 +135,23 @@ public sealed class CharacterTraitsTests
         resistance.WithResources.Should().BeGreaterThan(resistance.Passive);
         resistance.Resources.Should().Equal("Countercharm", "Survivor");
     }
+
+    [Fact]
+    public void Imunidade_dispensa_o_teste_e_ignora_os_recursos()
+    {
+        var traits = CharacterTraits.From(
+        [
+            new ConditionRecovery(Condition.Charmed, new RerollOnFailure(RollMode.Advantage, "Countercharm")),
+            new ConditionImmunity(Condition.Charmed, "Aura of Devotion"),
+            new ConditionImmunity(Condition.Frightened, "Aura of Courage"),
+        ]);
+        var saves = AbilityMap.Uniform(new SavingThrow(1, false, false));
+
+        var resistance = DefenseCalculator.Resist(StrahdCharm, saves, traits, proficiencyBonus: 3);
+
+        resistance.Passive.Should().Be(Probability.One);
+        resistance.WithResources.Should().Be(Probability.One);
+        resistance.ImmunitySource.Should().Be("Aura of Devotion");
+        resistance.Resources.Should().BeEmpty("nada é gasto num teste que não é feito");
+    }
 }

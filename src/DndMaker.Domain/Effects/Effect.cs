@@ -77,6 +77,12 @@ public sealed record ProficiencyBonusOnFailure(Condition Condition, string Sourc
 public sealed record SaveAdvantageResource(AbilitySet Abilities, string Source) : Effect;
 
 /// <summary>
+/// Imunidade a uma condição (Aura of Devotion contra Enfeitiçado): o teste contra ela nem é feito,
+/// então a chance de resistir é 100%.
+/// </summary>
+public sealed record ConditionImmunity(Condition Condition, string Source) : Effect;
+
+/// <summary>
 /// Encerra a condição depois que ela pega, sem mudar a chance do teste (Twilight Sanctuary no fim do turno).
 /// Aparece ao lado da chance, não dentro dela.
 /// </summary>
