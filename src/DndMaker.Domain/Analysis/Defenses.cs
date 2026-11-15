@@ -19,14 +19,19 @@ public sealed record ConditionThreat(string Name, Ability Ability, DifficultyCla
 
 /// <summary>
 /// Chance de resistir a uma ameaça: <see cref="Passive"/> sem gastar nada e <see cref="WithResources"/>
-/// usando o que pode ser gasto depois de falhar.
+/// gastando o que a ficha tem (vantagem de Lucky ou Watcher's Will, bônus do Survivor, rerrolagem do Countercharm).
+/// <see cref="Resources"/> lista o que entrou na conta; <see cref="Remedies"/>, o que encerra a condição depois
+/// sem mudar a chance (Twilight Sanctuary).
 /// </summary>
 public sealed record ThreatResistance(
     ConditionThreat Threat,
     Probability Passive,
     Probability WithResources,
     bool Advantage,
-    ImmutableArray<string> Resources);
+    ImmutableArray<string> Resources)
+{
+    public ImmutableArray<string> Remedies { get; init; } = [];
+}
 
 public sealed record ConcentrationResult(Probability Success, bool Advantage);
 
@@ -54,19 +59,29 @@ public static class DefenseCalculator
             proficiencies.Contains(ability),
             advantages.Contains(ability)));
 
-    public static ThreatResistance Resist(ConditionThreat threat, AbilityMap<SavingThrow> saves, CharacterTraits traits)
+    /// <summary>
+    /// Sem gastar nada vale só a vantagem permanente (espécie). Gastando recursos, uma fonte de vantagem
+    /// (Lucky, Watcher's Will) entra se ainda não houver vantagem; depois, bônus e rerrolagens sobre a falha.
+    /// </summary>
+    public static ThreatResistance Resist(ConditionThreat threat, AbilityMap<SavingThrow> saves, CharacterTraits traits, int proficiencyBonus)
     {
         var save = saves[threat.Ability];
         var advantage = save.Advantage || traits.ConditionAdvantages.Contains(threat.Condition);
         var check = D20Check.Save(save.Modifier, threat.Dc, advantage ? RollMode.Advantage : RollMode.Normal);
-        var recoveries = traits.RecoveriesAgainst(threat.Condition);
+
+        var advantageSources = advantage ? [] : traits.AdvantageResourcesFor(threat.Ability);
+        var spending = advantageSources.Count > 0 ? check.WithAdvantage() : check;
+        var recoveries = traits.RecoveriesAgainst(threat.Condition, proficiencyBonus);
 
         return new ThreatResistance(
             threat,
             check.Success(),
-            check.SuccessWith(recoveries),
+            spending.SuccessWith(recoveries),
             advantage,
-            [.. recoveries.Select(r => r.Source)]);
+            [.. advantageSources, .. recoveries.Select(r => r.Source)])
+        {
+            Remedies = [.. traits.RemediesAgainst(threat.Condition)],
+        };
     }
 
     public static ConcentrationResult Concentration(SavingThrow constitution, CharacterTraits traits)

@@ -20,7 +20,11 @@ public enum ResourceTier
 /// <summary>Situação específica em que a rotina vale. Rotinas situacionais não entram no "melhor turno" geral.</summary>
 public enum Situation
 {
+    /// <summary>Só contra mortos-vivos (Divine Smite radiante a mais).</summary>
     VsUndead,
+
+    /// <summary>Dano extra opcional da espécie; aparece na lista, mas não no melhor turno.</summary>
+    SpeciesOption,
 }
 
 public abstract record RoutineStep;

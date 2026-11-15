@@ -46,7 +46,12 @@ internal sealed record RoutineViewModel(RoutineDto Routine)
         get
         {
             var parts = new List<string> { $"= {Format.Decimal(Routine.Raw)} se tudo acertar" };
-            if (Routine.AttackBonus is { } bonus)
+            if (Routine.AttackBonuses.Count > 1)
+            {
+                // Problema 3 do plano: com dois bônus diferentes, mostra os dois.
+                parts.Add("ataques " + string.Join(" e ", Routine.AttackBonuses.Select(Format.Signed)));
+            }
+            else if (Routine.AttackBonus is { } bonus)
             {
                 parts.Add("ataque " + Format.Signed(bonus));
             }
@@ -67,6 +72,10 @@ internal sealed record RoutineViewModel(RoutineDto Routine)
     public bool IsPeak => Routine.Tier == ResourceTier.Peak;
 
     public bool MultipleTargets => Routine.MultipleTargets;
+
+    public string? Situation => Routine.Situation;
+
+    public bool HasSituation => Routine.Situation is not null;
 
     public string Note => Routine.Note;
 
@@ -227,18 +236,31 @@ internal sealed class SheetViewModel
         return parts.Count > 0 ? string.Join(" ", parts) : " ";
     }
 
+    /// <summary>O que cada recurso gasta, para a explicação da conta.</summary>
+    private static readonly Dictionary<string, string> ResourceCosts = new(StringComparer.Ordinal)
+    {
+        ["Countercharm"] = "Countercharm (reação)",
+        ["Lucky"] = "Lucky (ponto de sorte)",
+        ["Survivor"] = "Survivor (1x por descanso longo)",
+        ["Watcher's Will"] = "Watcher's Will (Canalizar Divindade)",
+    };
+
+    /// <summary>
+    /// Problema 1 do plano: a chance mostrada gasta os recursos da ficha; a explicação diz quais e quanto seria
+    /// sem gastar nada. O que encerra o charme depois (Twilight Sanctuary) aparece à parte.
+    /// </summary>
     private static string CharmHint(ResistanceDto charm)
     {
         var hint = $"Teste de {Format.AbilityName(charm.Ability)}, CD {charm.Dc} (ficha de 2016).";
-        if (charm.Resources.Contains("Countercharm"))
+        if (charm.Resources.Count > 0)
         {
-            hint += " Inclui o Countercharm, que gasta a reação.";
+            var resources = charm.Resources.Select(r => ResourceCosts.TryGetValue(r, out var cost) ? cost : r);
+            hint += $" Gastando {string.Join(", ", resources)}; sem gastar nada, {Format.Percent(charm.ChanceWithoutResources)}.";
         }
 
-        var others = charm.Resources.Where(r => r != "Countercharm").ToList();
-        if (others.Count > 0)
+        if (charm.Remedies.Count > 0)
         {
-            hint += $" Inclui {string.Join(", ", others)}.";
+            hint += $" {string.Join(" e ", charm.Remedies)} encerra o charme no fim do turno (fora da conta).";
         }
 
         return hint;

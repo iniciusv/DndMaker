@@ -102,12 +102,45 @@ public sealed class CharacterAnalyzer(ConditionThreat charmThreat, AbilityScoreA
             SavingThrows = saves,
             SaveBonus = saveBonus,
             SaveBonusSources = [.. traits.SaveAuras.Select(aura => aura.Name)],
-            Charm = DefenseCalculator.Resist(charmThreat, saves, traits),
+            Charm = DefenseCalculator.Resist(charmThreat, saves, traits, context.ProficiencyBonus),
             Concentration = archetype.Profile.UsesConcentration
                 ? DefenseCalculator.Concentration(saves[Ability.Constitution], traits)
                 : null,
-            Routines = [.. archetype.RoutinesAt(context).Select(r => DamageEstimator.Estimate(r, assumptions))],
+            Routines = Routines(archetype.RoutinesAt(context), traits.ExtraDamageOptions(level.Value), context.ProficiencyBonus, assumptions),
         };
+    }
+
+    /// <summary>
+    /// As rotinas da build e, para cada opção de dano extra (espécie), uma rotina a mais: o melhor turno com ataque
+    /// mais o dano extra no primeiro acerto, marcada como <see cref="Situation.SpeciesOption"/>.
+    /// </summary>
+    private static ImmutableArray<RoutineEstimate> Routines(
+        IEnumerable<AttackRoutine> routines, IReadOnlyList<ExtraDamageOption> options, int proficiencyBonus, CombatAssumptions assumptions)
+    {
+        var estimates = routines.Select(r => DamageEstimator.Estimate(r, assumptions)).ToList();
+        var withAttack = estimates.Where(e => e.Routine.Steps.OfType<AttackStep>().Any()).ToList();
+        var basis = RoutineSelector.Best(withAttack, ResourceTier.AtWill) ?? RoutineSelector.Best(withAttack, ResourceTier.Peak);
+        if (basis is null)
+        {
+            return [.. estimates];
+        }
+
+        var trigger = basis.Routine.Steps.OfType<AttackStep>().First();
+        foreach (var option in options)
+        {
+            var damage = option.AddsProficiencyBonus ? option.Damage + proficiencyBonus : option.Damage;
+            var routine = basis.Routine with
+            {
+                Name = $"{basis.Name} + {option.Name}",
+                Tier = (ResourceTier)Math.Max((int)basis.Tier, (int)option.Tier),
+                Steps = basis.Routine.Steps.Add(new RiderStep(trigger, damage)),
+                Note = option.Note,
+                Situation = Situation.SpeciesOption,
+            };
+            estimates.Add(DamageEstimator.Estimate(routine, assumptions));
+        }
+
+        return [.. estimates];
     }
 
     /// <summary>Talento do antecedente, talento extra (se a espécie der) e talentos dos níveis, sem repetir.</summary>

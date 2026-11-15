@@ -23,7 +23,8 @@ public sealed class CharacterTraits
                 case HitPointsPerLevel h: BonusHitPointsPerLevel += h.Amount; break;
                 case ArmorClassBonus b: BonusArmorClass += b.Amount; break;
                 case ConcentrationAdvantage: HasConcentrationAdvantage = true; break;
-                case InitiativeBonus or InitiativeAbilityBonus or DarkvisionGrant or SaveAura or ConditionRecovery: break;
+                case InitiativeBonus or InitiativeAbilityBonus or DarkvisionGrant or SaveAura or ConditionRecovery
+                    or ProficiencyBonusOnFailure or SaveAdvantageResource or ConditionRemedy or ExtraDamageOption: break;
                 default: throw new DomainException($"Efeito sem tratamento: {effect.GetType().Name}.");
             }
         }
@@ -58,8 +59,28 @@ public sealed class CharacterTraits
 
     public IReadOnlyList<SaveAura> SaveAuras => [.. _effects.OfType<SaveAura>()];
 
-    public IReadOnlyList<CheckRecovery> RecoveriesAgainst(Condition condition) =>
-        [.. _effects.OfType<ConditionRecovery>().Where(r => r.Condition == condition).Select(r => r.Recovery)];
+    /// <summary>
+    /// O que pode ser usado depois de falhar contra a condição: rerrolagens (Countercharm) e bônus
+    /// (Survivor soma o bônus de proficiência).
+    /// </summary>
+    public IReadOnlyList<CheckRecovery> RecoveriesAgainst(Condition condition, int proficiencyBonus) =>
+    [
+        .. _effects.OfType<ConditionRecovery>().Where(r => r.Condition == condition).Select(r => r.Recovery),
+        .. _effects.OfType<ProficiencyBonusOnFailure>().Where(r => r.Condition == condition)
+            .Select(r => new BonusOnFailure(proficiencyBonus, r.Source)),
+    ];
+
+    /// <summary>Fontes de vantagem que podem ser gastas num teste de resistência deste atributo (Lucky, Watcher's Will).</summary>
+    public IReadOnlyList<string> AdvantageResourcesFor(Ability ability) =>
+        [.. _effects.OfType<SaveAdvantageResource>().Where(r => r.Abilities.Contains(ability)).Select(r => r.Source).Distinct()];
+
+    /// <summary>O que encerra a condição depois que ela pega (Twilight Sanctuary).</summary>
+    public IReadOnlyList<string> RemediesAgainst(Condition condition) =>
+        [.. _effects.OfType<ConditionRemedy>().Where(r => r.Condition == condition).Select(r => r.Source).Distinct()];
+
+    /// <summary>As opções de dano extra que já existem neste nível.</summary>
+    public IReadOnlyList<ExtraDamageOption> ExtraDamageOptions(int level) =>
+        [.. _effects.OfType<ExtraDamageOption>().Where(o => level >= o.MinimumLevel)];
 
     /// <summary>Aplica as concessões em ordem sobre a visão no escuro da espécie. A última nota vale.</summary>
     public DarkvisionResult Darkvision(Meters speciesRange)

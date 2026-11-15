@@ -50,6 +50,12 @@ public sealed class WatchersPaladin() : BuildArchetype(Definition)
 
     public override IEnumerable<Effect> FeaturesAt(BuildContext context)
     {
+        if (context.Level >= 3)
+        {
+            // Problema 1 do plano: Watcher's Will (Canalizar Divindade) dá vantagem em INT, SAB e CAR.
+            yield return new SaveAdvantageResource(AbilitySet.Mental, "Watcher's Will");
+        }
+
         if (context.Level >= 6)
         {
             yield return new SaveAura(Charisma, 1, "Aura of Protection");
@@ -79,6 +85,7 @@ public sealed class WatchersPaladin() : BuildArchetype(Definition)
 
         yield return AttackRoutine.Peak("Espada longa + Divine Smite", sword, new RiderStep(sword, 2 * Dice.D8))
             .WithNote("Espaço de 1º círculo; dano radiante.");
-        yield return AttackRoutine.Peak("… contra morto-vivo", sword, new RiderStep(sword, 3 * Dice.D8));
+        // Problema 2 do plano: o smite contra morto-vivo é situacional e não entra no melhor turno.
+        yield return AttackRoutine.Peak("… contra morto-vivo", sword, new RiderStep(sword, 3 * Dice.D8)).When(Situation.VsUndead);
     }
 }

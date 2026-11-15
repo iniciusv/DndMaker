@@ -16,6 +16,7 @@ public sealed class FighterValorBard() : BuildArchetype(Definition)
 {
     public static readonly VariantId Defense = new("defense");
     public static readonly VariantId Dueling = new("dueling");
+    public static readonly VariantId Staff = new("staff");
 
     private const int DuelingBonus = 2;
 
@@ -31,7 +32,12 @@ public sealed class FighterValorBard() : BuildArchetype(Definition)
         SpellcastingAbility = Charisma,
         SuggestedBackground = new("haunted"),
         Progression = ClassProgression.Dip(ClassCatalog.Fighter, 1, ClassCatalog.Bard),
-        Variants = [new(Defense, "Estilo Defense (+1 CA)"), new(Dueling, "Estilo Dueling (+2 dano)")],
+        Variants =
+        [
+            new(Defense, "Estilo Defense (+1 CA)"),
+            new(Dueling, "Estilo Dueling (+2 dano)"),
+            new(Staff, "Bordão com Shillelagh (Dueling)") { RequiredFeat = FeatCatalog.MagicInitiateDruid.Id },
+        ],
         UsesConcentration = true,
         Milestones =
         [
@@ -76,11 +82,10 @@ public sealed class FighterValorBard() : BuildArchetype(Definition)
 
     public override IEnumerable<AttackRoutine> RoutinesAt(BuildContext context)
     {
-        var dueling = context.IsVariant(Dueling) ? DuelingBonus : 0;
-
-        // Paridade com o logic.js: Shillelagh entra só por ter Magic Initiate (Druida), sem variante própria,
-        // e soma Dueling ao bordão. A fase 6 revê isso (problema 4 do plano).
-        var shillelagh = context.Has(FeatCatalog.MagicInitiateDruid.Id);
+        // Problema 4 do plano: o Shillelagh só entra com a variante do bordão (e o talento). O bordão numa mão,
+        // com escudo, continua com Dueling, como as regras de 2024 permitem.
+        var shillelagh = context.Has(FeatCatalog.MagicInitiateDruid.Id) && context.IsVariant(Staff);
+        var dueling = context.IsVariant(Dueling) || context.IsVariant(Staff) ? DuelingBonus : 0;
         var charismaHit = context.AttackBonus(Charisma);
         var longsword = new AttackStep(1, context.AttackBonus(Strength), Dice.D8 + (context.Mod(Strength) + dueling));
 

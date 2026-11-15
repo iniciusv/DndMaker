@@ -15,8 +15,11 @@ namespace DndMaker.Content.Tests.Parity;
 /// </summary>
 public sealed class ExhaustiveTests
 {
-    /// <summary>20 variantes × 26 espécies × 20 antecedentes × 10 níveis × 10 escolhas, como no test.js.</summary>
-    private const int ExpectedCombinations = 1_040_000;
+    /// <summary>
+    /// 21 variantes × 26 espécies × 20 antecedentes × 10 níveis × 10 escolhas: as 1.040.000 do test.js
+    /// mais 52.000 da variante de bordão do Guerreiro 1 → Bardo do Valor (problema 4 do plano).
+    /// </summary>
+    private const int ExpectedCombinations = 1_092_000;
 
     private const int MaxReported = 10;
 

@@ -1,6 +1,8 @@
 using DndMaker.Domain.Abilities;
 using DndMaker.Domain.Checks;
 using DndMaker.Domain.Common;
+using DndMaker.Domain.Damage;
+using DndMaker.Domain.Routines;
 
 namespace DndMaker.Domain.Effects;
 
@@ -62,5 +64,33 @@ public sealed record SaveAura(Ability Source, int Minimum, string Name) : Effect
 /// <summary>Vantagem nos testes de concentração (War Caster).</summary>
 public sealed record ConcentrationAdvantage : Effect;
 
-/// <summary>Algo que pode ser usado depois de falhar contra uma condição (Countercharm, Survivor).</summary>
+/// <summary>Algo que pode ser usado depois de falhar contra uma condição (Countercharm).</summary>
 public sealed record ConditionRecovery(Condition Condition, CheckRecovery Recovery) : Effect;
+
+/// <summary>Soma o bônus de proficiência a um teste falho contra a condição (Survivor, 1x por descanso longo).</summary>
+public sealed record ProficiencyBonusOnFailure(Condition Condition, string Source) : Effect;
+
+/// <summary>
+/// Vantagem que pode ser gasta em testes de resistência desses atributos: Lucky (pontos de sorte, todos os atributos)
+/// e Watcher's Will (Canalizar Divindade, INT, SAB e CAR). Só conta na chance "gastando recursos".
+/// </summary>
+public sealed record SaveAdvantageResource(AbilitySet Abilities, string Source) : Effect;
+
+/// <summary>
+/// Encerra a condição depois que ela pega, sem mudar a chance do teste (Twilight Sanctuary no fim do turno).
+/// Aparece ao lado da chance, não dentro dela.
+/// </summary>
+public sealed record ConditionRemedy(Condition Condition, string Source) : Effect;
+
+/// <summary>
+/// Dano extra opcional, como o da espécie (Celestial Revelation, Surprise Attack, Giant Ancestry).
+/// Vira uma rotina a mais, marcada como opcional, que não entra no melhor turno.
+/// </summary>
+public sealed record ExtraDamageOption(string Name, DamageFormula Damage, ResourceTier Tier, string Note) : Effect
+{
+    /// <summary>Nível a partir do qual a opção existe.</summary>
+    public int MinimumLevel { get; init; } = 1;
+
+    /// <summary>Soma o bônus de proficiência ao dano (Celestial Revelation).</summary>
+    public bool AddsProficiencyBonus { get; init; }
+}

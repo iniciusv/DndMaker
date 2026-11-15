@@ -2,7 +2,9 @@ using System.Collections.Immutable;
 using DndMaker.Domain.Abilities;
 using DndMaker.Domain.Catalog;
 using DndMaker.Domain.Common;
+using DndMaker.Domain.Damage;
 using DndMaker.Domain.Effects;
+using DndMaker.Domain.Routines;
 
 namespace DndMaker.Content.Catalog;
 
@@ -16,6 +18,23 @@ public static class SpeciesCatalog
     private static readonly Meters Short = Meters.Of(18);
     private static readonly Meters Long = Meters.Of(36);
 
+    // Problema 7 do plano: o dano extra das espécies vira rotina opcional, fora do melhor turno.
+    private static readonly ExtraDamageOption CelestialRevelation =
+        new("Celestial Revelation", DamageFormula.Empty, ResourceTier.Peak,
+            "Aasimar: transformação de 1 minuto, 1x por descanso longo; + PB radiante ou necrótico uma vez por turno.")
+        {
+            MinimumLevel = 3,
+            AddsProficiencyBonus = true,
+        };
+
+    private static readonly ExtraDamageOption SurpriseAttack =
+        new("Surprise Attack", 2 * Dice.D6, ResourceTier.AtWill,
+            "Bugbear: só no primeiro acerto contra quem ainda não agiu no combate.");
+
+    private static readonly ExtraDamageOption FiresBurn =
+        new("Fire's Burn", Dice.D10, ResourceTier.Peak,
+            "Golias (Fire Giant): + 1d10 de fogo num acerto, PB vezes por descanso longo.");
+
     private static Species Create(string id, string name, string source, Meters darkvision, string description) =>
         new(new SpeciesId(id), name, source, description) { Darkvision = darkvision };
 
@@ -27,7 +46,8 @@ public static class SpeciesCatalog
             "Vantagem em todos os testes de resistência de INT, SAB e CAR. Linhagem da floresta (Minor Illusion, Speak with Animals) ou das rochas.")
             with { Effects = [new SaveAdvantage(AbilitySet.Mental)] },
         Create("aasimar", "Aasimar", Phb, Short,
-            "Resistência a dano necrótico e radiante, Healing Hands e, no nível 3, uma transformação de 1 minuto com dano extra igual ao PB uma vez por turno."),
+            "Resistência a dano necrótico e radiante, Healing Hands e, no nível 3, uma transformação de 1 minuto com dano extra igual ao PB uma vez por turno.")
+            with { Effects = [CelestialRevelation] },
         Create("elfo", "Elfo", Phb, Short,
             "Vantagem contra Enfeitiçado, uma perícia (Intuição, Percepção ou Sobrevivência) e magias da linhagem. Drow enxerga a 36 m.")
             with { Effects = [new ConditionAdvantage(Condition.Charmed)] },
@@ -40,7 +60,8 @@ public static class SpeciesCatalog
         Create("tiefling", "Tiefling", Phb, Short,
             "Legado ctônico: resistência necrótica, Chill Touch e False Life. Infernal: resistência a fogo e Darkness."),
         Create("golias", "Golias", Phb, Meters.Zero,
-            "Poder de gigante (teleporte, dano extra, derrubar ou reduzir dano), PB vezes por descanso longo. Deslocamento 10,5 m."),
+            "Poder de gigante (teleporte, dano extra, derrubar ou reduzir dano), PB vezes por descanso longo. Deslocamento 10,5 m.")
+            with { Effects = [FiresBurn] },
         Create("draconato", "Draconato", Phb, Short,
             "Sopro no lugar de um ataque, resistência a um tipo de dano e asas no nível 5."),
         Create("dhampir", "Dhampir", HorrorsWithin, Short,
@@ -77,7 +98,8 @@ public static class SpeciesCatalog
             "Vantagem contra Enfeitiçado, resistência a veneno, Enlarge/Reduce e Invisibility.")
             with { Effects = [new ConditionAdvantage(Condition.Charmed)] },
         Create("bugbear", "Bugbear", Multiverse, Short,
-            "+2d6 no primeiro acerto contra quem ainda não agiu, alcance maior e furtividade."),
+            "+2d6 no primeiro acerto contra quem ainda não agiu, alcance maior e furtividade.")
+            with { Effects = [SurpriseAttack] },
         Create("warforged", "Warforged", "Forge of the Artificer", Meters.Zero,
             "+1 de CA, resistência a veneno e não dorme.") with { Effects = [new ArmorClassBonus(1)] },
     ];

@@ -15,7 +15,11 @@ public static class FeatCatalog
     };
 
     public static Feat Lucky { get; } = new(new("lucky"), "Lucky", FeatCategory.Origin,
-        "Pontos de sorte iguais ao bônus de proficiência por descanso longo: vantagem num teste d20 seu ou desvantagem num ataque contra você.");
+        "Pontos de sorte iguais ao bônus de proficiência por descanso longo: vantagem num teste d20 seu ou desvantagem num ataque contra você.")
+    {
+        // Problema 1 do plano: a vantagem gasta com um ponto de sorte entra na chance "gastando recursos".
+        Effects = [new SaveAdvantageResource(AbilitySet.All, "Lucky")],
+    };
 
     public static Feat Tough { get; } = new(new("tough"), "Tough", FeatCategory.Origin, "+2 pontos de vida por nível.")
     {
@@ -49,7 +53,15 @@ public static class FeatCatalog
         "3 ferramentas de artesão, 20% de desconto em itens comuns e fabricação rápida.");
 
     public static Feat Survivor { get; } = new(new("survivor"), "Survivor", FeatCategory.Origin,
-        "Rerrola iniciativa de 9 ou menos. 1x por descanso longo, soma o bônus de proficiência a um teste falho contra Enfeitiçado ou Amedrontado.");
+        "Rerrola iniciativa de 9 ou menos. 1x por descanso longo, soma o bônus de proficiência a um teste falho contra Enfeitiçado ou Amedrontado.")
+    {
+        // Problema 1 do plano: o bônus depois da falha entra na chance "gastando recursos".
+        Effects =
+        [
+            new ProficiencyBonusOnFailure(Condition.Charmed, "Survivor"),
+            new ProficiencyBonusOnFailure(Condition.Frightened, "Survivor"),
+        ],
+    };
 
     public static Feat SharpEye { get; } = new(new("sharpeye"), "Sharp Eye", FeatCategory.Origin,
         "Vantagem em Procurar ou Estudar, PB vezes por descanso longo (só gasta se der certo).");

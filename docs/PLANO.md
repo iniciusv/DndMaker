@@ -12,7 +12,7 @@ Programa de desktop que recria o comparador "Builds para Barovia" ([Artefato Bas
 | 3. Conteúdo e paridade | **Concluída em 2026-11-15** |
 | 4. Application e Infrastructure | **Concluída em 2026-11-15** |
 | 5. Interface | **Concluída em 2026-11-15** |
-| 6. Correções | A fazer |
+| 6. Correções | **Concluída em 2026-11-15** |
 | 7. Extras | Opcional |
 
 ## Decisões tomadas
@@ -348,9 +348,9 @@ Outras mudanças: o `App` só monta os serviços no modo desktop (nos testes sem
 ## 9. Testes
 
 1. **Paridade:** `node tools/golden/export-golden.js` gera ~5.000 casos; `Content.Tests` compara com tolerância de 1e-9.
-2. **Diferenças propositais:** testes `Diverge_*` com comentário; casos afetados saem da comparação.
+2. **Diferenças propositais:** testes `Diverge_*` com comentário; nos casos afetados, só o campo que muda sai da comparação (`KnownDivergences`).
 3. **Unidade:** d20 contra enumeração, `Dice`, modificadores, alocador, regras do `CharacterBuild`.
-4. **Exaustivo:** as 1.040.000 combinações do `test.js`.
+4. **Exaustivo:** as 1.040.000 combinações do `test.js` (1.092.000 depois da variante de bordão do problema 4).
 5. **ViewModels:** `Avalonia.Headless`.
 
 ## 10. Clean Code
@@ -371,7 +371,7 @@ Outras mudanças: o `App` só monta os serviços no modo desktop (nos testes sem
 | 3. Conteúdo | Espécies, antecedentes, talentos, 10 builds, campanha | 100% de paridade e teste exaustivo passando |
 | 4. Application e Infrastructure | Casos de uso, DTOs, sessão, repositório, DI | Comparação sobrevive a fechar e abrir |
 | 5. Interface | Janela completa, tema, fontes | Mesmo conteúdo da página, utilizável no teclado |
-| 6. Correções | Problemas 1 a 6 | Golden atualizado, diferenças documentadas |
+| 6. Correções | Problemas 1 a 7 | Paridade com as diferenças documentadas |
 | 7. Extras | Seção 13 | Item a item |
 
 ## 12. Problemas do artefato que serão corrigidos
@@ -383,6 +383,22 @@ Outras mudanças: o `App` só monta os serviços no modo desktop (nos testes sem
 5. As tabelas usam Lucky como talento extra e a legenda não diz.
 6. `best()` parte sempre da primeira rotina, sem conferir faixa nem alvos.
 7. Dano extra de espécies (Aasimar, Bugbear, Golias) não é calculado nem avisado.
+
+### 12.1 Como ficou na fase 6
+
+| Problema | Correção | Teste |
+|---|---|---|
+| 1 | A chance mostrada é a "gastando recursos": Lucky e Watcher's Will (`SaveAdvantageResource`) dão vantagem se ainda não houver; Survivor (`ProficiencyBonusOnFailure`) soma o PB depois da falha; Countercharm continua rerrolando. A carta diz o que entrou e quanto seria sem gastar nada. Twilight Sanctuary (`ConditionRemedy`) encerra o charme depois e aparece à parte, fora da conta, porque não muda a chance do teste | `Diverge_1_*` |
+| 2 | "… contra morto-vivo" é `Situation.VsUndead`: aparece na lista, com etiqueta, mas não no melhor turno | `Diverge_2_*` |
+| 3 | `RoutineEstimate.AttackBonuses` traz todos os bônus diferentes; a carta mostra "ataques +6 e +7" | `Diverge_3_*`, `Rotina_com_dois_ataques_mostra_os_dois_bonus` |
+| 4 | Nova variante "Bordão com Shillelagh (Dueling)", que exige Magic Initiate (Druida). Defense e Dueling usam a espada. O Dueling no bordão ficou: numa mão, com escudo, as regras de 2024 permitem | `Diverge_4_*` (a variante reproduz o bordão do JS em todos os casos) |
+| 5 | A legenda das tabelas diz "humano com Lucky como talento extra" (feito na fase 4) | testes de `BuildsOverviewQuery` e do `BuildsOverviewViewModel` |
+| 6 | `RoutineSelector.Best` filtra faixa, alvos e situação antes de comparar e devolve nulo se nada servir (feito na fase 2). Com o conteúdo atual não muda nenhum número | `RoutineTests` no Domain |
+| 7 | `ExtraDamageOption` nas espécies: Celestial Revelation (Aasimar, +PB a partir do 3), Surprise Attack (Bugbear, +2d6) e Fire's Burn (Golias, +1d10). Cada uma vira uma rotina opcional sobre o melhor turno com ataque, marcada "opcional da espécie", fora do melhor turno | `Diverge_7_*`, `Dano_extra_da_especie_aparece_como_opcional` |
+
+A paridade continua comparando todos os 5.020 casos: `KnownDivergences` ajusta só o campo que cada correção muda e, quando dá, confere o número antigo por outro caminho (a chance só com Countercharm, o melhor turno do JS sem a rotina situacional). O `golden.json` não muda: ele é o retrato do `logic.js`.
+
+Decisão registrada: o dano extra das espécies ficou como rotina opcional, fora do melhor turno, para não mudar a comparação entre builds; contar ou não no melhor turno pode virar uma opção da tela nos extras.
 
 ## 13. Extras
 

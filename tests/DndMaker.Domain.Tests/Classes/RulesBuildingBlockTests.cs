@@ -129,7 +129,7 @@ public sealed class CharacterTraitsTests
         ]);
         var saves = AbilityMap.Uniform(new SavingThrow(1, false, false));
 
-        var resistance = DefenseCalculator.Resist(StrahdCharm, saves, traits);
+        var resistance = DefenseCalculator.Resist(StrahdCharm, saves, traits, proficiencyBonus: 3);
 
         resistance.Passive.Value.Should().BeApproximately(0.25, 1e-12);
         resistance.WithResources.Should().BeGreaterThan(resistance.Passive);

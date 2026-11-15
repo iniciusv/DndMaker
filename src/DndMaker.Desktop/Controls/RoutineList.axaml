@@ -29,6 +29,9 @@
               <Border Classes="pill" Margin="0,0,6,2" IsVisible="{Binding MultipleTargets}">
                 <TextBlock Text="vários alvos" />
               </Border>
+              <Border Classes="pill" Margin="0,0,6,2" IsVisible="{Binding HasSituation}">
+                <TextBlock Text="{Binding Situation}" />
+              </Border>
               <TextBlock Classes="fine" FontSize="13" VerticalAlignment="Center" IsVisible="{Binding HasNote}" Text="{Binding Note}" />
             </WrapPanel>
           </StackPanel>

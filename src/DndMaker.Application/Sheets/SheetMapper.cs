@@ -66,7 +66,11 @@ public static class SheetMapper
         estimate.PrimaryAttackBonus?.Value,
         estimate.PrimaryDc?.Value,
         estimate.Tier <= maxTier,
-        isBest);
+        isBest)
+    {
+        AttackBonuses = [.. estimate.AttackBonuses.Select(b => b.Value)],
+        Situation = estimate.Routine.Situation is { } situation ? DisplayText.Situation(situation) : null,
+    };
 
     private static PickDto Pick(LevelPick pick) =>
         new(pick.Level, LevelChoiceIds.Of(pick.Choice), DisplayText.LevelChoiceName(pick.Choice), pick.ChangesText);
@@ -80,7 +84,8 @@ public static class SheetMapper
         charm.WithResources.Value,
         charm.Passive.Value,
         charm.Advantage,
-        [.. charm.Resources]);
+        [.. charm.Resources],
+        [.. charm.Remedies]);
 
     private static ResistanceDto Concentration(ConcentrationResult concentration) => new(
         Ability.Constitution.Abbreviation(),
@@ -88,6 +93,7 @@ public static class SheetMapper
         concentration.Success.Value,
         concentration.Success.Value,
         concentration.Advantage,
+        [],
         []);
 
     private static MilestoneTime Time(int milestoneLevel, int level) =>

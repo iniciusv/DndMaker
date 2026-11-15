@@ -59,6 +59,10 @@ public sealed class TwilightCleric() : BuildArchetype(Definition)
         if (context.Level >= 3)
         {
             yield return new DarkvisionGrant(Meters.Of(90), DarkvisionKind.Minimum, "Eyes of Night");
+
+            // Problema 1 do plano: o Twilight Sanctuary encerra o charme no fim do turno; aparece ao lado da chance.
+            yield return new ConditionRemedy(Condition.Charmed, "Twilight Sanctuary");
+            yield return new ConditionRemedy(Condition.Frightened, "Twilight Sanctuary");
         }
     }
 

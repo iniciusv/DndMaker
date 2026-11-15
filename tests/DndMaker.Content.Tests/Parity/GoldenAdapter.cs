@@ -57,7 +57,7 @@ internal static class GoldenAdapter
         Dark: new GoldenDarkvision(sheet.Darkvision.Range.Value, sheet.Darkvision.Note ?? string.Empty),
         Sb: sheet.SaveBonus,
         Saves: [.. AbilityList.All.Select(a => sheet.SavingThrows[a]).Select(s => new GoldenSave(s.Modifier, s.Proficient, s.Advantage))],
-        Strahd: new GoldenCharm(sheet.Charm.WithResources.Value, sheet.Charm.Advantage, !sheet.Charm.Resources.IsEmpty),
+        Strahd: new GoldenCharm(sheet.Charm.WithResources.Value, sheet.Charm.Advantage, sheet.Charm.Resources.Contains("Countercharm")),
         Conc: sheet.Concentration is { } c ? new GoldenConcentration(c.Success.Value, c.Advantage) : null,
         Feats: [.. sheet.Feats.Select(f => f.Id.Value).Order(StringComparer.Ordinal)],
         Picks: [.. sheet.Allocation.Picks.Select(p => new GoldenPick(p.Level, ChoiceId(p.Choice), p.ChangesText))],

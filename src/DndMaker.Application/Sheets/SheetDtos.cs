@@ -9,15 +9,24 @@ public sealed record PickDto(int Level, string ChoiceId, string ChoiceName, stri
 
 public sealed record SaveDto(string Abbreviation, int Modifier, bool Proficient, bool Advantage);
 
-/// <summary>Chance de passar num teste (charme ou concentração) e o que entrou na conta.</summary>
+/// <summary>
+/// Chance de passar num teste (charme ou concentração): <see cref="Chance"/> gastando recursos e
+/// <see cref="ChanceWithoutResources"/> sem gastar nada. <see cref="Resources"/> é o que entrou na conta;
+/// <see cref="Remedies"/>, o que encerra a condição depois, fora da conta.
+/// </summary>
 public sealed record ResistanceDto(
     string Ability,
     int Dc,
     double Chance,
     double ChanceWithoutResources,
     bool Advantage,
-    IReadOnlyList<string> Resources);
+    IReadOnlyList<string> Resources,
+    IReadOnlyList<string> Remedies);
 
+/// <summary>
+/// Uma rotina de dano. <see cref="AttackBonus"/> é o do primeiro ataque (como na página); <see cref="AttackBonuses"/>
+/// traz todos os diferentes. <see cref="Situation"/> marca as rotinas que não entram no melhor turno.
+/// </summary>
 public sealed record RoutineDto(
     string Name,
     ResourceTier Tier,
@@ -30,7 +39,12 @@ public sealed record RoutineDto(
     int? AttackBonus,
     int? Dc,
     bool Counted,
-    bool IsBest);
+    bool IsBest)
+{
+    public IReadOnlyList<int> AttackBonuses { get; init; } = [];
+
+    public string? Situation { get; init; }
+}
 
 public enum MilestoneTime
 {

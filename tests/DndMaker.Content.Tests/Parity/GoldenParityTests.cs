@@ -5,7 +5,8 @@ namespace DndMaker.Content.Tests.Parity;
 
 /// <summary>
 /// Paridade com o motor original: cada caso de tools/golden/golden.json, calculado pelo logic.js,
-/// tem de sair igual no C#. Um teste por build, que lista todos os casos e campos diferentes.
+/// tem de sair igual no C#, menos as correções da fase 6, descritas em <see cref="KnownDivergences"/>.
+/// Um teste por build, que lista todos os casos e campos diferentes.
 /// </summary>
 public sealed class GoldenParityTests
 {
@@ -43,7 +44,9 @@ public sealed class GoldenParityTests
     {
         try
         {
-            return GoldenComparer.Differences(golden.Output, GoldenAdapter.Project(GoldenAdapter.Analyze(golden.Input)));
+            var sheet = GoldenAdapter.Analyze(golden.Input);
+            var (expected, actual) = KnownDivergences.Apply(golden, sheet, GoldenAdapter.Project(sheet));
+            return GoldenComparer.Differences(expected, actual);
         }
 #pragma warning disable CA1031 // Uma exceção num caso vira uma diferença relatada, sem esconder os outros casos.
         catch (Exception ex)

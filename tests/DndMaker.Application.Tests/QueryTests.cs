@@ -59,10 +59,16 @@ public sealed class QueryTests
         result.Cards.Select(c => c.ArmorClass).Should().Equal(19, 19, 19);
         result.Cards.Select(c => c.HitPoints).Should().Equal(45, 33, 39);
         result.Cards.Select(c => c.Initiative).Should().Equal(1, 4, 3);
-        result.Cards.Select(c => c.Charm.Chance).Should().SatisfyRespectively(
+        // Sem gastar nada, como no logic.js; gastando recursos, Survivor e Watcher's Will entram (fase 6, problema 1).
+        result.Cards.Select(c => c.Charm.ChanceWithoutResources).Should().SatisfyRespectively(
             p => p.Should().BeApproximately(0.20, Tolerance),
             p => p.Should().BeApproximately(0.25, Tolerance),
             p => p.Should().BeApproximately(0.40, Tolerance));
+        result.Cards.Select(c => c.Charm.Chance).Should().SatisfyRespectively(
+            p => p.Should().BeApproximately(0.35, Tolerance),
+            p => p.Should().BeApproximately(0.25, Tolerance),
+            p => p.Should().BeApproximately(0.64, Tolerance));
+        result.Cards.Select(c => string.Join(", ", c.Charm.Resources)).Should().Equal("Survivor", "", "Watcher's Will");
         result.Cards.Select(c => c.BestRoutine!.Name).Should().Equal(
             "Eldritch Blast (à distância)", "True Strike (bordão com Shillelagh)", "Espada longa");
         result.Cards[0].BestRoutine!.Expected.Should().BeApproximately(12.35, Tolerance);
@@ -127,7 +133,7 @@ public sealed class QueryTests
         var overview = new BuildsOverviewQuery(CurseOfStrahd.Ruleset, Analyzer)
             .Execute(Level.Of(5), new ArmorClass(15), ResourceTier.Concentration);
 
-        overview.ExtraOriginFeatName.Should().Be("Lucky");
+        overview.ExtraOriginFeatName.Should().Be("Lucky", "a legenda diz qual talento extra as tabelas usam (fase 6, problema 5)");
         overview.SpeciesName.Should().Be("Humano");
         overview.MaxTierName.Should().Be("com magia de concentração");
         overview.Rows.Select(r => r.ArchetypeId).Should().Equal("fwl", "valor", "pal", "twi", "gloom", "lock", "swords", "fval", "shadow", "bm");
@@ -135,7 +141,7 @@ public sealed class QueryTests
         var paladin = overview.Rows.Single(r => r.ArchetypeId == "pal");
         paladin.Should().Match<OverviewRowDto>(r => r.ArmorClass == 19 && r.HitPoints == 39 && r.Initiative == 0
             && r.WisdomSave == 4 && r.ConstitutionSave == 1 && r.BestRoutine == "Espada longa");
-        paladin.CharmChance.Should().BeApproximately(0.40, Tolerance);
+        paladin.CharmChance.Should().BeApproximately(0.64, Tolerance, "Lucky ou Watcher's Will dão vantagem (fase 6, problema 1)");
         paladin.Milestone.Should().Be("Extra Attack; magias de 2º círculo");
 
         var gloom = overview.Rows.Single(r => r.ArchetypeId == "gloom");

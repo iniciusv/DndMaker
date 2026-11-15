@@ -34,6 +34,9 @@ public sealed record RoutineEstimate(AttackRoutine Routine, ImmutableArray<StepE
     /// <summary>Bônus do primeiro ataque (o que a página original mostrava).</summary>
     public AttackBonus? PrimaryAttackBonus => Routine.Steps.OfType<AttackStep>().Select(a => (AttackBonus?)a.Bonus).FirstOrDefault();
 
+    /// <summary>Os bônus de ataque diferentes da rotina, na ordem (ataque com DES e True Strike com CAR dão dois).</summary>
+    public ImmutableArray<AttackBonus> AttackBonuses => [.. Routine.Steps.OfType<AttackStep>().Select(a => a.Bonus).Distinct()];
+
     /// <summary>CD do primeiro efeito com teste.</summary>
     public DifficultyClass? PrimaryDc => Routine.Steps.OfType<SaveStep>().Select(s => (DifficultyClass?)s.Dc).FirstOrDefault();
 }
@@ -127,10 +130,14 @@ public static class RoutineFormatter
     public static string Format(RoutineStep step) => step switch
     {
         AttackStep a => Grouped(a.Count, a.Damage.ToString()),
-        RiderStep r => "+" + r.Damage,
+        RiderStep r => Signed(r.Damage.ToString()),
         SaveStep s => Grouped(s.Targets, s.Damage.ToString()),
         _ => throw new DomainException($"Etapa sem formato: {step.GetType().Name}."),
     };
+
+    /// <summary>Dano extra com sinal: <c>+2d8</c>; um valor fixo já vem com o dele (<c>+3</c>).</summary>
+    private static string Signed(string damage) =>
+        damage.StartsWith('+') || damage.StartsWith(SignedNumber.Minus) ? damage : "+" + damage;
 
     private static string Grouped(int count, string damage) =>
         (count > 1 ? count + Times : string.Empty) + "(" + damage + ")";

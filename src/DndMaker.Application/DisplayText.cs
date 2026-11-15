@@ -27,6 +27,14 @@ public static class DisplayText
         _ => throw new ArgumentOutOfRangeException(nameof(tier), tier, "Faixa de recurso desconhecida."),
     };
 
+    /// <summary>Por que a rotina fica fora do melhor turno.</summary>
+    public static string Situation(Situation situation) => situation switch
+    {
+        Domain.Routines.Situation.VsUndead => "só contra mortos-vivos",
+        Domain.Routines.Situation.SpeciesOption => "opcional da espécie",
+        _ => throw new ArgumentOutOfRangeException(nameof(situation), situation, "Situação desconhecida."),
+    };
+
     public static string Status(ArchetypeStatus status) => status switch
     {
         ArchetypeStatus.Finalist => "finalista",

@@ -52,9 +52,10 @@ public sealed class ViewModelTests : IAsyncDisposable
         warlock.BackgroundText.Should().Be("Antecedente: CAR +2, CON +1.");
         warlock.Picks.Should().ContainSingle().Which.Should().Be(new LabeledTextViewModel("Nível 5, Aumento de atributo (+2):", "CAR 17 → 18, CON 15 → 16."));
         warlock.Saves.Select(s => s.Detail).Should().Equal("prof.", " ", "prof.", " ", " ", " ");
-        warlock.Charm.PercentText.Should().Be("20%");
+        warlock.Charm.PercentText.Should().Be("35%");
         warlock.Charm.Level.Should().Be(MeterLevel.Low);
-        warlock.Charm.Caption.Should().Be("Teste de Sabedoria, CD 17 (ficha de 2016).");
+        warlock.Charm.Caption.Should().Be(
+            "Teste de Sabedoria, CD 17 (ficha de 2016). Gastando Survivor (1x por descanso longo); sem gastar nada, 20%.");
         warlock.Concentration!.Caption.Should().Be("Teste de Constituição, CD 10, ao sofrer dano.");
         warlock.Routines.Single(r => r.IsBest).Name.Should().Be("Eldritch Blast (à distância)");
         warlock.Routines.Single(r => r.IsBest).ExpectedText.Should().Be("12,4");
@@ -70,8 +71,10 @@ public sealed class ViewModelTests : IAsyncDisposable
 
         paladin.SavesText.Should().EndWith("Inclui +3 da Aura of Protection.");
         paladin.IsFinalist.Should().BeTrue();
-        paladin.Charm.PercentText.Should().Be("55%");
-        paladin.Charm.Level.Should().Be(MeterLevel.Mid);
+        paladin.Charm.PercentText.Should().Be("80%", "Watcher's Will dá vantagem: 1 − 0,45²");
+        paladin.Charm.Level.Should().Be(MeterLevel.Good);
+        paladin.Charm.Caption.Should().EndWith("Gastando Watcher's Will (Canalizar Divindade); sem gastar nada, 55%.");
+        paladin.Routines.Single(r => r.Name == "… contra morto-vivo").Situation.Should().Be("só contra mortos-vivos");
     }
 
     [Fact]
@@ -97,7 +100,8 @@ public sealed class ViewModelTests : IAsyncDisposable
         _main.SelectedTier = _main.Tiers[2];
 
         Session.Current.Assumptions.TargetArmorClass.Value.Should().Be(13);
-        _main.Overview.Caption.Should().Contain("CA 13").And.Contain("pico (gasta recurso)");
+        _main.Overview.Caption.Should().Contain("CA 13").And.Contain("pico (gasta recurso)")
+            .And.Contain("com Lucky como talento extra", "a legenda diz qual talento extra as tabelas usam (fase 6, problema 5)");
         _main.Cards[2].Sheet!.Routines.Should().OnlyContain(r => r.Counted);
         _main.DamageGrid.Rows.Should().HaveCount(10);
     }
@@ -115,6 +119,38 @@ public sealed class ViewModelTests : IAsyncDisposable
         card.LevelChoices.Select(c => c.Level).Should().Equal(4, 8);
         card.SelectedBackground!.Id.Should().Be("andarilho");
         card.SelectedExtraOriginFeat!.Id.Should().Be("mi_wizard", "o talento extra fica ao trocar a build");
+    }
+
+    [Fact]
+    public void Rotina_com_dois_ataques_mostra_os_dois_bonus()
+    {
+        // Fase 6, problema 3: Bardo do Valor com arco no 6 ataca com DES (+6) e faz True Strike com CAR (+7).
+        var bard = _main.Cards[1];
+        bard.SelectedVariant = bard.Variants.Single(v => v.Id == "arco");
+        _main.SelectedLevel = _main.Levels[5];
+
+        bard.Sheet!.Routines.Single(r => r.Name.StartsWith("Ataque + True Strike", StringComparison.Ordinal)).Details
+            .Should().EndWith("ataques +6 e +7");
+    }
+
+    [Fact]
+    public void Dano_extra_da_especie_aparece_como_opcional()
+    {
+        // Fase 6, problema 7.
+        var paladin = _main.Cards[2];
+        paladin.SelectedSpecies = paladin.Species.Single(s => s.Id == "aasimar");
+
+        var extra = paladin.Sheet!.Routines.Single(r => r.Situation == "opcional da espécie");
+        extra.Name.Should().Be("Espada longa + Celestial Revelation");
+        extra.IsBest.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Twilight_Sanctuary_aparece_na_explicacao_do_charme()
+    {
+        _main.Overview.Items.Single(r => r.ArchetypeId == "twi").Slots[0].Command.Execute(null);
+
+        _main.Cards[0].Sheet!.Charm.Caption.Should().EndWith("Twilight Sanctuary encerra o charme no fim do turno (fora da conta).");
     }
 
     [Fact]
