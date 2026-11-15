@@ -1,0 +1,365 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- As classes seguem o CSS da página original (Artefato Base/template.html). -->
+
+  <Style Selector="Window">
+    <Setter Property="Background" Value="{DynamicResource FogBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
+    <Setter Property="FontFamily" Value="{StaticResource BodyFont}" />
+    <Setter Property="FontSize" Value="15" />
+  </Style>
+
+  <!-- Tipografia -->
+  <Style Selector="TextBlock.h1">
+    <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
+    <Setter Property="FontSize" Value="50" />
+    <Setter Property="LineHeight" Value="52" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+  <Style Selector="TextBlock.h2">
+    <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
+    <Setter Property="FontSize" Value="24" />
+  </Style>
+  <Style Selector="TextBlock.h3">
+    <Setter Property="FontFamily" Value="{StaticResource CapsFont}" />
+    <Setter Property="FontSize" Value="16" />
+    <Setter Property="LetterSpacing" Value="1.1" />
+  </Style>
+  <Style Selector="TextBlock.eyebrow">
+    <Setter Property="FontFamily" Value="{StaticResource CapsFont}" />
+    <Setter Property="FontSize" Value="15" />
+    <Setter Property="LetterSpacing" Value="1.2" />
+    <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
+  </Style>
+  <Style Selector="TextBlock.caps">
+    <Setter Property="FontFamily" Value="{StaticResource CapsFont}" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="LetterSpacing" Value="0.6" />
+    <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
+  </Style>
+  <Style Selector="TextBlock.display">
+    <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
+  </Style>
+  <Style Selector="TextBlock.muted">
+    <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
+  </Style>
+  <Style Selector="TextBlock.lede">
+    <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
+    <Setter Property="FontSize" Value="17" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+    <Setter Property="MaxWidth" Value="640" />
+    <Setter Property="HorizontalAlignment" Value="Left" />
+  </Style>
+  <Style Selector="TextBlock.fine">
+    <Setter Property="FontSize" Value="13.5" />
+    <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+  <Style Selector="TextBlock.body">
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+  <Style Selector="TextBlock.blood">
+    <Setter Property="Foreground" Value="{DynamicResource BloodBrush}" />
+  </Style>
+  <Style Selector="TextBlock.code">
+    <Setter Property="FontFamily" Value="{StaticResource MonoFont}" />
+    <Setter Property="FontSize" Value="12.5" />
+    <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
+  </Style>
+
+  <!-- Blocos -->
+  <Style Selector="Border.card">
+    <Setter Property="Background" Value="{DynamicResource CardBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="4" />
+  </Style>
+  <Style Selector="Border.rule">
+    <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+    <Setter Property="Padding" Value="0,0,0,4" />
+  </Style>
+  <Style Selector="Border.mast">
+    <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+    <Setter Property="Padding" Value="0,0,0,22" />
+  </Style>
+  <Style Selector="Border.alert">
+    <Setter Property="Background" Value="{DynamicResource CardBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BloodBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="4" />
+    <Setter Property="Padding" Value="12,8" />
+  </Style>
+
+  <!-- Selo da build: finalista em sangue, descartada riscada -->
+  <Style Selector="Border.tag">
+    <Setter Property="BorderBrush" Value="{DynamicResource MutedBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="2" />
+    <Setter Property="Padding" Value="6,2" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Border.tag TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource CapsFont}" />
+    <Setter Property="FontSize" Value="11.5" />
+    <Setter Property="LetterSpacing" Value="0.6" />
+    <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
+  </Style>
+  <Style Selector="Border.tag.finalist">
+    <Setter Property="BorderBrush" Value="{DynamicResource BloodBrush}" />
+  </Style>
+  <Style Selector="Border.tag.finalist TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource BloodBrush}" />
+  </Style>
+  <Style Selector="Border.tag.discarded TextBlock">
+    <Setter Property="TextDecorations" Value="Strikethrough" />
+  </Style>
+
+  <!-- Cabeçalho da carta: moldura dupla em tinta -->
+  <Style Selector="Border.frame">
+    <Setter Property="BorderBrush" Value="{DynamicResource InkBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+
+  <!-- Quadros de CA, PV, iniciativa e visão no escuro -->
+  <Style Selector="Border.tile">
+    <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="Padding" Value="6,8" />
+    <Setter Property="Margin" Value="3" />
+  </Style>
+  <Style Selector="Border.tile.leader">
+    <Setter Property="BorderBrush" Value="{DynamicResource BloodBrush}" />
+  </Style>
+  <Style Selector="Border.tile TextBlock.value">
+    <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
+    <Setter Property="FontSize" Value="25" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Border.tile.leader TextBlock.value">
+    <Setter Property="Foreground" Value="{DynamicResource BloodBrush}" />
+  </Style>
+
+  <!-- Células de atributos e testes de resistência -->
+  <Style Selector="Border.cell">
+    <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="Padding" Value="2,6" />
+    <Setter Property="Margin" Value="2" />
+  </Style>
+  <Style Selector="Border.cell.emphasis">
+    <Setter Property="BorderBrush" Value="{DynamicResource InkBrush}" />
+  </Style>
+
+  <!-- Barras de probabilidade -->
+  <Style Selector="ProgressBar.meter">
+    <Setter Property="Height" Value="7" />
+    <Setter Property="MinHeight" Value="7" />
+    <Setter Property="CornerRadius" Value="4" />
+    <Setter Property="Background" Value="{DynamicResource TrackBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource LowBrush}" />
+    <Setter Property="Minimum" Value="0" />
+    <Setter Property="Maximum" Value="100" />
+  </Style>
+  <Style Selector="ProgressBar.meter.mid">
+    <Setter Property="Foreground" Value="{DynamicResource MidBrush}" />
+  </Style>
+  <Style Selector="ProgressBar.meter.good">
+    <Setter Property="Foreground" Value="{DynamicResource GoodBrush}" />
+  </Style>
+  <Style Selector="TextBlock.percent">
+    <Setter Property="FontWeight" Value="Medium" />
+    <Setter Property="FontSize" Value="16" />
+  </Style>
+  <Style Selector="TextBlock.percent.mid">
+    <Setter Property="Foreground" Value="{DynamicResource MidBrush}" />
+  </Style>
+  <Style Selector="TextBlock.percent.good">
+    <Setter Property="Foreground" Value="{DynamicResource GoodBrush}" />
+  </Style>
+
+  <!-- Rotinas de dano: barra à esquerda, sangue na escolhida, apagada fora da faixa -->
+  <Style Selector="Border.routine">
+    <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+    <Setter Property="BorderThickness" Value="3,0,0,0" />
+    <Setter Property="Padding" Value="10,2,0,2" />
+  </Style>
+  <Style Selector="Border.routine.best">
+    <Setter Property="BorderBrush" Value="{DynamicResource BloodBrush}" />
+  </Style>
+  <Style Selector="Border.routine.off">
+    <Setter Property="Opacity" Value="0.62" />
+  </Style>
+  <Style Selector="Border.routine TextBlock.expected">
+    <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
+    <Setter Property="FontSize" Value="21" />
+  </Style>
+  <Style Selector="Border.routine.best TextBlock.expected">
+    <Setter Property="Foreground" Value="{DynamicResource BloodBrush}" />
+  </Style>
+  <Style Selector="Border.pill">
+    <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="10" />
+    <Setter Property="Padding" Value="7,0" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Border.pill TextBlock">
+    <Setter Property="FontSize" Value="12" />
+  </Style>
+  <Style Selector="Border.pill.concentration">
+    <Setter Property="BorderBrush" Value="{DynamicResource MidBrush}" />
+  </Style>
+  <Style Selector="Border.pill.concentration TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource MidBrush}" />
+  </Style>
+  <Style Selector="Border.pill.peak">
+    <Setter Property="BorderBrush" Value="{DynamicResource BloodBrush}" />
+  </Style>
+  <Style Selector="Border.pill.peak TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource BloodBrush}" />
+  </Style>
+
+  <!-- Linha do tempo da build -->
+  <Style Selector="Border.step">
+    <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="Width" Value="26" />
+    <Setter Property="VerticalAlignment" Value="Top" />
+  </Style>
+  <Style Selector="Border.step.current">
+    <Setter Property="Background" Value="{DynamicResource BloodBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BloodBrush}" />
+  </Style>
+  <Style Selector="Border.step.current TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource FogBrush}" />
+  </Style>
+  <Style Selector="TextBlock.milestone.current">
+    <Setter Property="FontWeight" Value="Medium" />
+  </Style>
+  <Style Selector="TextBlock.milestone.future">
+    <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
+  </Style>
+
+  <!-- Estrada de níveis: botões lado a lado, o escolhido em tinta, a janela de destaque sublinhada em sangue -->
+  <Style Selector="ListBox.levels">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0" />
+  </Style>
+  <Style Selector="ListBox.levels ListBoxItem">
+    <Setter Property="Margin" Value="2" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="MinHeight" Value="42" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+  <Style Selector="ListBox.levels ListBoxItem /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource CardBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
+  </Style>
+  <Style Selector="ListBox.levels ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource CardBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource InkBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
+  </Style>
+  <Style Selector="ListBox.levels ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource InkBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource InkBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource FogBrush}" />
+  </Style>
+  <Style Selector="ListBox.levels ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource InkBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource FogBrush}" />
+  </Style>
+  <Style Selector="ListBox.levels ListBoxItem:selected:focus /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource InkBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource FogBrush}" />
+  </Style>
+  <Style Selector="Border.phase">
+    <Setter Property="BorderBrush" Value="{DynamicResource MutedBrush}" />
+    <Setter Property="BorderThickness" Value="0,1,0,0" />
+    <Setter Property="Padding" Value="0,5,0,0" />
+    <Setter Property="Margin" Value="2,0" />
+  </Style>
+
+  <!-- Tabelas -->
+  <Style Selector="TextBlock.num">
+    <Setter Property="HorizontalAlignment" Value="Right" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="TextBlock.top">
+    <Setter Property="Foreground" Value="{DynamicResource BloodBrush}" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+  <Style Selector="DataGrid">
+    <Setter Property="Background" Value="{DynamicResource CardBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="4" />
+    <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource LineBrush}" />
+  </Style>
+  <!-- O cabeçalho do Fluent reserva 32 px para o ícone de ordenação; a margem menor compensa parte disso. -->
+  <Style Selector="DataGridColumnHeader">
+    <Setter Property="Padding" Value="8,0,0,0" />
+    <Setter Property="FontFamily" Value="{StaticResource CapsFont}" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
+  </Style>
+  <Style Selector="DataGridCell">
+    <Setter Property="Padding" Value="10,6" />
+  </Style>
+  <Style Selector="Button.slot">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="Padding" Value="8,3" />
+    <Setter Property="Margin" Value="0,0,3,0" />
+    <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
+    <Setter Property="FontSize" Value="14" />
+  </Style>
+  <Style Selector="Button.slot:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BloodBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource BloodBrush}" />
+  </Style>
+
+  <!-- Grade de dano: colunas de destaque marcadas nas laterais, nível atual contornado -->
+  <Style Selector="Border.heat">
+    <Setter Property="Padding" Value="8,7" />
+    <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+  </Style>
+  <Style Selector="Border.heat.window">
+    <Setter Property="BorderBrush" Value="{DynamicResource MutedBrush}" />
+    <Setter Property="BorderThickness" Value="1,0,1,1" />
+  </Style>
+  <Style Selector="Border.current">
+    <Setter Property="BorderBrush" Value="{DynamicResource InkBrush}" />
+    <Setter Property="BorderThickness" Value="2" />
+  </Style>
+  <Style Selector="TextBlock.window">
+    <Setter Property="Foreground" Value="{DynamicResource BloodBrush}" />
+  </Style>
+
+  <!-- Abas -->
+  <Style Selector="TabItem">
+    <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
+    <Setter Property="FontSize" Value="22" />
+  </Style>
+
+  <Style Selector="HyperlinkButton">
+    <Setter Property="Foreground" Value="{DynamicResource BloodBrush}" />
+    <Setter Property="Padding" Value="0" />
+  </Style>
+</Styles>

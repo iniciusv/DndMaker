@@ -1,6 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- ViewModels testados sem abrir janela (Avalonia.Headless entra na fase 5). -->
+  <!-- ViewModels testados sem janela; a janela renderizada com Avalonia.Headless (Skia, sem tela). -->
   <ItemGroup>
     <ProjectReference Include="..\..\src\DndMaker.Desktop\DndMaker.Desktop.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Headless" />
   </ItemGroup>
 </Project>

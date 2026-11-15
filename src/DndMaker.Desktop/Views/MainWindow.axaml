@@ -1,14 +1,334 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:DndMaker.Desktop.ViewModels"
+        xmlns:catalog="using:DndMaker.Application.Catalog"
+        xmlns:views="using:DndMaker.Desktop.Views"
+        xmlns:controls="using:DndMaker.Desktop.Controls"
         x:Class="DndMaker.Desktop.Views.MainWindow"
         x:DataType="vm:MainViewModel"
         Title="Builds para Barovia"
-        Width="1280" Height="800" MinWidth="420"
+        Width="1380" Height="920" MinWidth="760" MinHeight="480"
         WindowStartupLocation="CenterScreen">
-  <StackPanel Margin="28" Spacing="10">
-    <TextBlock Text="{Binding Subtitle}" Opacity="0.7" />
-    <TextBlock Text="{Binding Title}" FontSize="40" TextWrapping="Wrap" />
-    <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Opacity="0.7" />
-  </StackPanel>
+  <!-- Ctrl+← e Ctrl+→ andam pela estrada de níveis de qualquer lugar da janela. -->
+  <Window.KeyBindings>
+    <KeyBinding Gesture="Ctrl+Right" Command="{Binding NextLevelCommand}" />
+    <KeyBinding Gesture="Ctrl+Left" Command="{Binding PreviousLevelCommand}" />
+  </Window.KeyBindings>
+
+  <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+    <StackPanel MaxWidth="1320" MinWidth="1040" Margin="20,28,20,64" Spacing="28">
+
+      <!-- Cabeçalho -->
+      <Border Classes="mast">
+        <StackPanel Spacing="10">
+          <TextBlock Classes="eyebrow" Text="{Binding Eyebrow}" />
+          <!-- Os Runs ficam colados: quebras de linha entre eles virariam espaços. -->
+          <TextBlock Classes="h1"><Run Text="Quem eu levo para " /><Run Foreground="{DynamicResource BloodBrush}" FontStyle="Italic" Text="Barovia" /><Run Text="?" /></TextBlock>
+          <TextBlock Classes="lede"
+                     Text="Monte até três personagens lado a lado. Troque a build, a espécie, o antecedente e os talentos, ande pela estrada de níveis e veja a defesa, os testes de resistência e o dano de cada um mudarem." />
+        </StackPanel>
+      </Border>
+
+      <Border Classes="alert" IsVisible="{Binding HasSaveError}">
+        <DockPanel>
+          <Button DockPanel.Dock="Right" Content="Fechar" Command="{Binding DismissSaveErrorCommand}" />
+          <TextBlock Classes="body blood" VerticalAlignment="Center" Text="{Binding SaveError}" />
+        </DockPanel>
+      </Border>
+
+      <!-- Estrada de níveis e premissas -->
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="28">
+        <StackPanel Spacing="8">
+          <StackPanel Orientation="Horizontal" Spacing="14">
+            <TextBlock Classes="h2" VerticalAlignment="Bottom" Text="Nível" />
+            <TextBlock Classes="h2 blood" VerticalAlignment="Bottom" Text="{Binding LevelText}" />
+            <TextBlock Classes="muted" VerticalAlignment="Bottom" Margin="0,0,0,3" Text="{Binding LevelCaption}" />
+          </StackPanel>
+          <ListBox Classes="levels" ItemsSource="{Binding Levels}" SelectedItem="{Binding SelectedLevel}"
+                   AutomationProperties.Name="Nível do personagem">
+            <ListBox.ItemsPanel>
+              <ItemsPanelTemplate>
+                <UniformGrid Rows="1" />
+              </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="vm:LevelStepViewModel">
+                <Grid AutomationProperties.Name="{Binding AccessibleName}">
+                  <TextBlock FontSize="17" FontWeight="Medium" HorizontalAlignment="Center" VerticalAlignment="Center"
+                             Text="{Binding Text}" />
+                  <Rectangle Height="3" VerticalAlignment="Bottom" Fill="{DynamicResource BloodBrush}" IsVisible="{Binding IsHighlight}" />
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+          <!-- As fases ocupam as colunas dos seus níveis (a campanha vai até o 10). -->
+          <ItemsControl ItemsSource="{Binding Phases}" Focusable="False">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <Grid ColumnDefinitions="*,*,*,*,*,*,*,*,*,*" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.Styles>
+              <Style Selector="ContentPresenter" x:DataType="vm:PhaseLabelViewModel">
+                <Setter Property="Grid.Column" Value="{Binding Column}" />
+                <Setter Property="Grid.ColumnSpan" Value="{Binding Span}" />
+              </Style>
+            </ItemsControl.Styles>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:PhaseLabelViewModel">
+                <Border Classes="phase">
+                  <TextBlock Classes="caps" FontSize="12.5" TextWrapping="Wrap" Text="{Binding Name}" />
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Bottom" Margin="0,0,0,26">
+          <StackPanel Spacing="3">
+            <TextBlock Classes="caps" Text="CA do inimigo" />
+            <ComboBox MinWidth="180" ItemsSource="{Binding EnemyArmorClasses}" SelectedItem="{Binding SelectedEnemyArmorClass}"
+                      AutomationProperties.Name="CA do inimigo">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="catalog:EnemyArmorClassDto">
+                  <TextBlock Text="{Binding Label}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+          </StackPanel>
+          <StackPanel Spacing="3">
+            <TextBlock Classes="caps" Text="Contar rotinas" />
+            <ComboBox MinWidth="240" ItemsSource="{Binding Tiers}" SelectedItem="{Binding SelectedTier}"
+                      AutomationProperties.Name="Contar rotinas">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="catalog:TierOptionDto">
+                  <TextBlock Text="{Binding FilterLabel}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+          </StackPanel>
+        </StackPanel>
+      </Grid>
+
+      <!-- As três cartas -->
+      <ItemsControl ItemsSource="{Binding Cards}" AutomationProperties.Name="Cartas comparadas">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <UniformGrid Columns="3" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:CharacterCardViewModel">
+            <views:CharacterCardView Margin="0,0,18,0" VerticalAlignment="Top" />
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <!-- Tabelas e notas -->
+      <TabControl>
+        <TabItem Header="Todas as builds">
+          <StackPanel Spacing="10" Margin="0,12,0,0">
+            <TextBlock Classes="h2" Text="{Binding Overview.Title}" />
+            <DataGrid ItemsSource="{Binding Overview.Rows}" AutoGenerateColumns="False" IsReadOnly="True"
+                      CanUserSortColumns="True" CanUserResizeColumns="True" CanUserReorderColumns="False"
+                      GridLinesVisibility="Horizontal" HeadersVisibility="Column" SelectionMode="Single"
+                      AutomationProperties.Name="Todas as builds">
+              <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Build" SortMemberPath="Name" Width="210">
+                  <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate x:DataType="vm:OverviewRowViewModel">
+                      <StackPanel Spacing="4" VerticalAlignment="Center">
+                        <TextBlock FontWeight="Medium" TextWrapping="Wrap" Text="{Binding Name}" />
+                        <Border Classes="tag" HorizontalAlignment="Left" Classes.finalist="{Binding IsFinalist}" Classes.discarded="{Binding IsDiscarded}">
+                          <TextBlock Text="{Binding Status}" />
+                        </Border>
+                      </StackPanel>
+                    </DataTemplate>
+                  </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="CA" SortMemberPath="ArmorClass" Width="58">
+                  <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate x:DataType="vm:OverviewRowViewModel">
+                      <TextBlock Classes="num" Classes.top="{Binding TopArmorClass}" Text="{Binding ArmorClass}" />
+                    </DataTemplate>
+                  </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="PV" SortMemberPath="HitPoints" Width="62">
+                  <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate x:DataType="vm:OverviewRowViewModel">
+                      <TextBlock Classes="num" Classes.top="{Binding TopHitPoints}" Text="{Binding HitPoints}" />
+                    </DataTemplate>
+                  </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="SAB" SortMemberPath="WisdomSave" Width="72">
+                  <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate x:DataType="vm:OverviewRowViewModel">
+                      <TextBlock Classes="num" Classes.top="{Binding TopWisdomSave}" Text="{Binding WisdomSaveText}" />
+                    </DataTemplate>
+                  </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="CON" SortMemberPath="ConstitutionSave" Width="74">
+                  <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate x:DataType="vm:OverviewRowViewModel">
+                      <TextBlock Classes="num" Classes.top="{Binding TopConstitutionSave}" Text="{Binding ConstitutionSaveText}" />
+                    </DataTemplate>
+                  </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Inic." SortMemberPath="Initiative" Width="72">
+                  <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate x:DataType="vm:OverviewRowViewModel">
+                      <TextBlock Classes="num" Classes.top="{Binding TopInitiative}" Text="{Binding InitiativeText}" />
+                    </DataTemplate>
+                  </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Resiste a Strahd" SortMemberPath="CharmChance" Width="152">
+                  <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate x:DataType="vm:OverviewRowViewModel">
+                      <TextBlock Classes="num" Text="{Binding CharmText}" />
+                    </DataTemplate>
+                  </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Dano esperado" SortMemberPath="BestExpected" Width="136">
+                  <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate x:DataType="vm:OverviewRowViewModel">
+                      <TextBlock Classes="num" Classes.top="{Binding TopExpected}" Text="{Binding BestExpectedText}" />
+                    </DataTemplate>
+                  </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Melhor turno" SortMemberPath="BestRoutine" Width="170">
+                  <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate x:DataType="vm:OverviewRowViewModel">
+                      <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding BestRoutine}" />
+                    </DataTemplate>
+                  </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Marco do nível" SortMemberPath="Milestone" Width="*" MinWidth="150">
+                  <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate x:DataType="vm:OverviewRowViewModel">
+                      <TextBlock Classes="muted" VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding Milestone}" />
+                    </DataTemplate>
+                  </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Comparar em" CanUserSort="False" Width="124">
+                  <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate x:DataType="vm:OverviewRowViewModel">
+                      <ItemsControl ItemsSource="{Binding Slots}" VerticalAlignment="Center">
+                        <ItemsControl.ItemsPanel>
+                          <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                          </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate x:DataType="vm:SlotButtonViewModel">
+                            <Button Classes="slot" Content="{Binding Numeral}" Command="{Binding Command}"
+                                    AutomationProperties.Name="{Binding AccessibleName}" ToolTip.Tip="{Binding AccessibleName}" />
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                    </DataTemplate>
+                  </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+              </DataGrid.Columns>
+            </DataGrid>
+            <TextBlock Classes="fine" Text="{Binding Overview.Caption}" />
+          </StackPanel>
+        </TabItem>
+
+        <TabItem Header="Dano por nível">
+          <StackPanel Spacing="10" Margin="0,12,0,0">
+            <TextBlock Classes="h2" Text="Dano esperado em cada nível" />
+            <Border Classes="card" Padding="0">
+              <StackPanel>
+                <DockPanel>
+                  <Border DockPanel.Dock="Left" Width="240" Classes="heat">
+                    <TextBlock Classes="caps" Text="Build" />
+                  </Border>
+                  <ItemsControl ItemsSource="{Binding DamageGrid.Columns}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <UniformGrid Rows="1" />
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:LevelColumnViewModel">
+                        <Border Classes="heat" Classes.window="{Binding IsHighlight}">
+                          <Panel>
+                            <Border Classes="current" Margin="-8,-7" IsVisible="{Binding IsCurrent}" />
+                            <TextBlock Classes="caps num" Classes.window="{Binding IsHighlight}" Text="{Binding Text}" />
+                          </Panel>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </DockPanel>
+                <ItemsControl ItemsSource="{Binding DamageGrid.Rows}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:DamageRowViewModel">
+                      <DockPanel>
+                        <Border DockPanel.Dock="Left" Width="240" Classes="heat">
+                          <TextBlock FontWeight="Medium" Text="{Binding Name}" />
+                        </Border>
+                        <ItemsControl ItemsSource="{Binding Cells}">
+                          <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                              <UniformGrid Rows="1" />
+                            </ItemsPanelTemplate>
+                          </ItemsControl.ItemsPanel>
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:HeatCellViewModel">
+                              <controls:HeatCell />
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                      </DockPanel>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </Border>
+            <TextBlock Classes="fine" Text="{Binding DamageGrid.Caption}" />
+          </StackPanel>
+        </TabItem>
+
+        <TabItem Header="O que já sabemos">
+          <ItemsControl ItemsSource="{Binding Notes}" Margin="0,12,0,0">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <UniformGrid Columns="3" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="catalog:NoteSectionDto">
+                <StackPanel Spacing="8" Margin="0,0,32,22">
+                  <Border Classes="rule">
+                    <TextBlock Classes="h3" Text="{Binding Title}" />
+                  </Border>
+                  <ItemsControl ItemsSource="{Binding Items}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <StackPanel Spacing="5" />
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="catalog:NoteItemDto">
+                        <Grid ColumnDefinitions="14,*">
+                          <TextBlock Classes="muted" Text="•" />
+                          <HyperlinkButton Grid.Column="1" IsVisible="{Binding Link, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                           NavigateUri="{Binding Link}" Content="{Binding Text}" />
+                          <TextBlock Grid.Column="1" Classes="body" FontSize="14.5"
+                                     IsVisible="{Binding Link, Converter={x:Static ObjectConverters.IsNull}}">
+                            <Run FontWeight="Bold" Text="{Binding Lead}" /><Run Text=" " /><Run Text="{Binding Text}" />
+                          </TextBlock>
+                        </Grid>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </TabItem>
+      </TabControl>
+    </StackPanel>
+  </ScrollViewer>
 </Window>

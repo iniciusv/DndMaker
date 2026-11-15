@@ -15,17 +15,19 @@ public partial class App : Avalonia.Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        _services = CompositionRoot.Build();
-
-        // A comparação gravada volta antes da primeira tela; o arquivo é pequeno e a leitura não usa a thread da interface.
-        var persistence = _services.GetRequiredService<ComparisonPersistence>();
-        Task.Run(() => persistence.RestoreAsync()).GetAwaiter().GetResult();
-
+        // Os serviços só sobem no programa de verdade; nos testes sem janela o App serve apenas de tema.
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            var services = CompositionRoot.Build();
+            _services = services;
+
+            // A comparação gravada volta antes da primeira tela; o arquivo é pequeno e a leitura não usa a thread da interface.
+            var persistence = services.GetRequiredService<ComparisonPersistence>();
+            Task.Run(() => persistence.RestoreAsync()).GetAwaiter().GetResult();
+
             desktop.MainWindow = new MainWindow
             {
-                DataContext = _services.GetRequiredService<MainViewModel>(),
+                DataContext = services.GetRequiredService<MainViewModel>(),
             };
             desktop.Exit += (_, _) => Shutdown();
         }

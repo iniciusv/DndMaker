@@ -1,0 +1,14 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DndMaker.Desktop.ViewModels"
+             x:Class="DndMaker.Desktop.Controls.HeatCell"
+             x:DataType="vm:HeatCellViewModel">
+  <!-- Célula da grade de dano: o fundo em sangue fica mais forte quanto maior o dano. -->
+  <Border Classes="heat" Classes.window="{Binding IsHighlight}">
+    <Panel>
+      <Border Background="{DynamicResource BloodBrush}" Opacity="{Binding Intensity}" Margin="-8,-7" />
+      <Border Classes="current" Margin="-8,-7" IsVisible="{Binding IsCurrent}" />
+      <TextBlock Classes="num" Text="{Binding Text}" />
+    </Panel>
+  </Border>
+</UserControl>

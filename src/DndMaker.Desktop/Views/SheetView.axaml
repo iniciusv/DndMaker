@@ -1,0 +1,154 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DndMaker.Desktop.ViewModels"
+             xmlns:controls="using:DndMaker.Desktop.Controls"
+             x:Class="DndMaker.Desktop.Views.SheetView"
+             x:DataType="vm:SheetViewModel">
+  <!-- Os resultados de uma carta, na ordem da página: cabeçalho, defesas, atributos, testes, dano, progressão e balanço. -->
+  <UserControl.DataTemplates>
+    <DataTemplate x:DataType="vm:LabeledTextViewModel">
+      <TextBlock Classes="body">
+        <Run FontWeight="Bold" Text="{Binding Lead}" /><Run Text=" " /><Run Text="{Binding Text}" />
+      </TextBlock>
+    </DataTemplate>
+  </UserControl.DataTemplates>
+
+  <StackPanel Spacing="12" Margin="16">
+    <!-- Cabeçalho em moldura dupla: numeral, epíteto, nome e selo -->
+    <Border Classes="frame" Padding="3" Margin="4">
+      <Border Classes="frame" Padding="14,12">
+        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+          <TextBlock Classes="display blood" FontSize="34" VerticalAlignment="Center" MinWidth="40" TextAlignment="Center"
+                     Text="{Binding Numeral}" />
+          <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+            <TextBlock Classes="caps" FontSize="14" Text="{Binding Epithet}" />
+            <TextBlock Classes="display" FontSize="23" TextWrapping="Wrap" Text="{Binding Name}" />
+          </StackPanel>
+          <Border Grid.Column="2" Classes="tag" Classes.finalist="{Binding IsFinalist}" Classes.discarded="{Binding IsDiscarded}">
+            <TextBlock Text="{Binding Status}" />
+          </Border>
+        </Grid>
+      </Border>
+    </Border>
+    <TextBlock Classes="muted body" FontSize="15" Text="{Binding Summary}" />
+
+    <ItemsControl ItemsSource="{Binding Tiles}">
+      <ItemsControl.ItemsPanel>
+        <ItemsPanelTemplate>
+          <UniformGrid Columns="4" />
+        </ItemsPanelTemplate>
+      </ItemsControl.ItemsPanel>
+      <ItemsControl.ItemTemplate>
+        <DataTemplate x:DataType="vm:StatTileViewModel">
+          <controls:StatTile />
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+    <TextBlock Classes="fine" Text="{Binding ArmorText}" />
+
+    <Border Classes="rule" Margin="0,6,0,0">
+      <TextBlock Classes="h3" Text="Atributos" />
+    </Border>
+    <ItemsControl ItemsSource="{Binding Abilities}">
+      <ItemsControl.ItemsPanel>
+        <ItemsPanelTemplate>
+          <UniformGrid Columns="6" />
+        </ItemsPanelTemplate>
+      </ItemsControl.ItemsPanel>
+      <ItemsControl.ItemTemplate>
+        <DataTemplate x:DataType="vm:AbilityCellViewModel">
+          <Border Classes="cell">
+            <StackPanel HorizontalAlignment="Center" Spacing="1">
+              <TextBlock Classes="caps" FontSize="12" HorizontalAlignment="Center" Text="{Binding Abbreviation}" />
+              <TextBlock FontSize="17" FontWeight="Medium" HorizontalAlignment="Center" Text="{Binding Value}" />
+              <TextBlock Classes="muted" FontSize="11.5" HorizontalAlignment="Center" Text="{Binding Detail}" />
+            </StackPanel>
+          </Border>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+    <TextBlock Classes="fine" Text="{Binding BackgroundText}" />
+    <ItemsControl ItemsSource="{Binding Picks}" IsVisible="{Binding HasPicks}" />
+
+    <Border Classes="rule" Margin="0,6,0,0">
+      <TextBlock Classes="h3" Text="Testes de resistência" />
+    </Border>
+    <ItemsControl ItemsSource="{Binding Saves}">
+      <ItemsControl.ItemsPanel>
+        <ItemsPanelTemplate>
+          <UniformGrid Columns="6" />
+        </ItemsPanelTemplate>
+      </ItemsControl.ItemsPanel>
+      <ItemsControl.ItemTemplate>
+        <DataTemplate x:DataType="vm:AbilityCellViewModel">
+          <Border Classes="cell" Classes.emphasis="{Binding Emphasis}">
+            <StackPanel HorizontalAlignment="Center" Spacing="1">
+              <TextBlock Classes="caps" FontSize="12" HorizontalAlignment="Center" Text="{Binding Abbreviation}" />
+              <TextBlock FontSize="17" FontWeight="Medium" HorizontalAlignment="Center" Text="{Binding Value}" />
+              <TextBlock Classes="muted" FontSize="11.5" HorizontalAlignment="Center" TextAlignment="Center"
+                         TextWrapping="Wrap" Text="{Binding Detail}" />
+            </StackPanel>
+          </Border>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+    <TextBlock Classes="fine" Text="{Binding SavesText}" />
+    <StackPanel Spacing="10">
+      <controls:ProbabilityMeter DataContext="{Binding Charm}" />
+      <Panel IsVisible="{Binding HasConcentration}">
+        <controls:ProbabilityMeter DataContext="{Binding Concentration}" />
+      </Panel>
+    </StackPanel>
+
+    <Border Classes="rule" Margin="0,6,0,0">
+      <TextBlock Classes="h3" Text="Dano em um turno" />
+    </Border>
+    <controls:RoutineList />
+    <TextBlock Classes="fine" IsVisible="{Binding ShowShillelaghHint}"
+               Text="O bordão com Shillelagh exige o talento Magic Initiate (Druida), pelo humano ou pelo antecedente Guia. Sem ele, a conta usa a arma comum." />
+
+    <Border Classes="rule" Margin="0,6,0,0">
+      <TextBlock Classes="h3" Text="Progressão" />
+    </Border>
+    <ItemsControl ItemsSource="{Binding Milestones}">
+      <ItemsControl.ItemsPanel>
+        <ItemsPanelTemplate>
+          <StackPanel Spacing="5" />
+        </ItemsPanelTemplate>
+      </ItemsControl.ItemsPanel>
+      <ItemsControl.ItemTemplate>
+        <DataTemplate x:DataType="vm:MilestoneViewModel">
+          <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+            <Border Classes="step" Classes.current="{Binding IsCurrent}">
+              <TextBlock FontSize="13" FontWeight="Medium" HorizontalAlignment="Center" Text="{Binding LevelText}" />
+            </Border>
+            <TextBlock Grid.Column="1" Classes="milestone body" Classes.current="{Binding IsCurrent}"
+                       Classes.future="{Binding IsFuture}" Text="{Binding Text}" />
+          </Grid>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+
+    <Border Classes="rule" Margin="0,6,0,0">
+      <TextBlock Classes="h3" Text="Espécie e talentos" />
+    </Border>
+    <ItemsControl ItemsSource="{Binding SpeciesAndFeats}">
+      <ItemsControl.ItemsPanel>
+        <ItemsPanelTemplate>
+          <StackPanel Spacing="6" />
+        </ItemsPanelTemplate>
+      </ItemsControl.ItemsPanel>
+    </ItemsControl>
+
+    <Border Classes="rule" Margin="0,6,0,0">
+      <TextBlock Classes="h3" Text="Balanço" />
+    </Border>
+    <ItemsControl ItemsSource="{Binding Balance}">
+      <ItemsControl.ItemsPanel>
+        <ItemsPanelTemplate>
+          <StackPanel Spacing="6" />
+        </ItemsPanelTemplate>
+      </ItemsControl.ItemsPanel>
+    </ItemsControl>
+  </StackPanel>
+</UserControl>

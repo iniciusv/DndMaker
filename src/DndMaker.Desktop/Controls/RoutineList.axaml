@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DndMaker.Desktop.ViewModels"
+             x:Class="DndMaker.Desktop.Controls.RoutineList"
+             x:DataType="vm:SheetViewModel">
+  <!-- "Dano em um turno": cada rotina com dano esperado, fórmula, bônus e faixa de recurso. -->
+  <ItemsControl ItemsSource="{Binding Routines}">
+    <ItemsControl.ItemsPanel>
+      <ItemsPanelTemplate>
+        <StackPanel Spacing="8" />
+      </ItemsPanelTemplate>
+    </ItemsControl.ItemsPanel>
+    <ItemsControl.ItemTemplate>
+      <DataTemplate x:DataType="vm:RoutineViewModel">
+        <Border Classes="routine" Classes.best="{Binding IsBest}" Classes.off="{Binding !Counted}">
+          <StackPanel Spacing="2">
+            <DockPanel>
+              <TextBlock DockPanel.Dock="Right" Classes="expected" Margin="10,0,0,0" VerticalAlignment="Bottom"
+                         Text="{Binding ExpectedText}" />
+              <TextBlock Text="{Binding Name}" TextWrapping="Wrap" VerticalAlignment="Bottom" />
+            </DockPanel>
+            <TextBlock Classes="fine" FontSize="13">
+              <Run FontFamily="{StaticResource MonoFont}" Foreground="{DynamicResource InkBrush}" Text="{Binding Formula}" /><Run Text=" " /><Run Text="{Binding Details}" />
+            </TextBlock>
+            <WrapPanel Orientation="Horizontal">
+              <Border Classes="pill" Classes.concentration="{Binding IsConcentration}" Classes.peak="{Binding IsPeak}" Margin="0,0,6,2">
+                <TextBlock Text="{Binding TierName}" />
+              </Border>
+              <Border Classes="pill" Margin="0,0,6,2" IsVisible="{Binding MultipleTargets}">
+                <TextBlock Text="vários alvos" />
+              </Border>
+              <TextBlock Classes="fine" FontSize="13" VerticalAlignment="Center" IsVisible="{Binding HasNote}" Text="{Binding Note}" />
+            </WrapPanel>
+          </StackPanel>
+        </Border>
+      </DataTemplate>
+    </ItemsControl.ItemTemplate>
+  </ItemsControl>
+</UserControl>

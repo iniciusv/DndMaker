@@ -1,0 +1,14 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DndMaker.Desktop.ViewModels"
+             x:Class="DndMaker.Desktop.Controls.StatTile"
+             x:DataType="vm:StatTileViewModel">
+  <!-- Um número grande com rótulo (CA, PV...). Em sangue quando a carta lidera sozinha. -->
+  <Border Classes="tile" Classes.leader="{Binding IsLeader}">
+    <StackPanel Spacing="2">
+      <TextBlock Classes="value" Text="{Binding Value}" />
+      <TextBlock Classes="muted" FontSize="12" HorizontalAlignment="Center" TextAlignment="Center"
+                 TextWrapping="Wrap" Text="{Binding Label}" />
+    </StackPanel>
+  </Border>
+</UserControl>

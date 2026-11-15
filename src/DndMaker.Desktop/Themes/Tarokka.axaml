@@ -1,0 +1,62 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!--
+    Paleta Tarokka da página original: névoa, carta, tinta e sangue.
+    Cada cor existe nas variantes clara e escura; os controles usam sempre DynamicResource.
+  -->
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Light">
+      <Color x:Key="FogColor">#E8E6EE</Color>
+      <Color x:Key="CardColor">#F5F4F8</Color>
+      <Color x:Key="InkColor">#1E1A28</Color>
+      <Color x:Key="MutedColor">#5F5970</Color>
+      <Color x:Key="LineColor">#CDC8D8</Color>
+      <Color x:Key="BloodColor">#8C1D2F</Color>
+      <Color x:Key="GoodColor">#2C6A4D</Color>
+      <Color x:Key="MidColor">#8F6410</Color>
+      <Color x:Key="LowColor">#6C6580</Color>
+      <Color x:Key="SystemAccentColor">#8C1D2F</Color>
+      <Color x:Key="SystemAccentColorDark1">#7A1929</Color>
+      <Color x:Key="SystemAccentColorDark2">#681522</Color>
+      <Color x:Key="SystemAccentColorDark3">#56111C</Color>
+      <Color x:Key="SystemAccentColorLight1">#A1354A</Color>
+      <Color x:Key="SystemAccentColorLight2">#B65266</Color>
+      <Color x:Key="SystemAccentColorLight3">#CB7383</Color>
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="Dark">
+      <Color x:Key="FogColor">#13101A</Color>
+      <Color x:Key="CardColor">#1C1826</Color>
+      <Color x:Key="InkColor">#E5E1EE</Color>
+      <Color x:Key="MutedColor">#A59DB8</Color>
+      <Color x:Key="LineColor">#383147</Color>
+      <Color x:Key="BloodColor">#E2596D</Color>
+      <Color x:Key="GoodColor">#74C49B</Color>
+      <Color x:Key="MidColor">#DBA945</Color>
+      <Color x:Key="LowColor">#8F87A6</Color>
+      <Color x:Key="SystemAccentColor">#E2596D</Color>
+      <Color x:Key="SystemAccentColorDark1">#C94C5F</Color>
+      <Color x:Key="SystemAccentColorDark2">#B04052</Color>
+      <Color x:Key="SystemAccentColorDark3">#973445</Color>
+      <Color x:Key="SystemAccentColorLight1">#E8707F</Color>
+      <Color x:Key="SystemAccentColorLight2">#EE8894</Color>
+      <Color x:Key="SystemAccentColorLight3">#F3A1AA</Color>
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
+
+  <SolidColorBrush x:Key="FogBrush" Color="{DynamicResource FogColor}" />
+  <SolidColorBrush x:Key="CardBrush" Color="{DynamicResource CardColor}" />
+  <SolidColorBrush x:Key="InkBrush" Color="{DynamicResource InkColor}" />
+  <SolidColorBrush x:Key="MutedBrush" Color="{DynamicResource MutedColor}" />
+  <SolidColorBrush x:Key="LineBrush" Color="{DynamicResource LineColor}" />
+  <SolidColorBrush x:Key="BloodBrush" Color="{DynamicResource BloodColor}" />
+  <SolidColorBrush x:Key="GoodBrush" Color="{DynamicResource GoodColor}" />
+  <SolidColorBrush x:Key="MidBrush" Color="{DynamicResource MidColor}" />
+  <SolidColorBrush x:Key="LowBrush" Color="{DynamicResource LowColor}" />
+  <SolidColorBrush x:Key="TrackBrush" Color="{DynamicResource LineColor}" Opacity="0.7" />
+
+  <!-- Fontes OFL embutidas em Assets/Fonts (licenças ao lado dos arquivos). -->
+  <FontFamily x:Key="DisplayFont">avares://DndMaker/Assets/Fonts#IM FELL English</FontFamily>
+  <FontFamily x:Key="CapsFont">avares://DndMaker/Assets/Fonts#IM FELL English SC</FontFamily>
+  <FontFamily x:Key="BodyFont">avares://DndMaker/Assets/Fonts#Alegreya Sans</FontFamily>
+  <FontFamily x:Key="MonoFont">Cascadia Mono, Consolas, Courier New</FontFamily>
+</ResourceDictionary>

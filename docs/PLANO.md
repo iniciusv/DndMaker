@@ -11,7 +11,7 @@ Programa de desktop que recria o comparador "Builds para Barovia" ([Artefato Bas
 | 2. Modelo do domínio | **Concluída em 2026-11-14** |
 | 3. Conteúdo e paridade | **Concluída em 2026-11-15** |
 | 4. Application e Infrastructure | **Concluída em 2026-11-15** |
-| 5. Interface | A fazer |
+| 5. Interface | **Concluída em 2026-11-15** |
 | 6. Correções | A fazer |
 | 7. Extras | Opcional |
 
@@ -325,6 +325,25 @@ Mudanças em relação ao desenho:
 - ViewModels: `MainViewModel`, `CharacterCardViewModel`, `SheetViewModel`, `BuildsOverviewViewModel`, `DamageGridViewModel`.
 - Controles: `LevelRoad`, `ProbabilityMeter`, `StatTile`, `RoutineList`, `HeatCell`.
 - Tema Tarokka claro e escuro (`ThemeDictionaries`), fontes IM Fell English e Alegreya Sans (OFL) embutidas.
+
+### 8.1 Como ficou na fase 5
+
+| Plano | Implementado em `src/DndMaker.Desktop` |
+|---|---|
+| `MainViewModel` | Seletores do topo (nível, CA, faixa), três cartas, tabelas e notas; recalcula tudo a cada `ComparisonSession.Changed`. Comandos `NextLevel`/`PreviousLevel` e aviso de falha ao gravar |
+| `CharacterCardViewModel` | Seletores da carta (build, variante, espécie, talento extra só para quem tem, antecedente, níveis de talento da build) e a ficha; só reflete o estado que volta da sessão |
+| `SheetViewModel` | Os textos da carta montados como no `ui.js` (armadura, picks, testes, charme, rotinas, progressão, espécie e talentos, balanço) |
+| `BuildsOverviewViewModel` | `DataGridCollectionView` com linhas trocadas no lugar, para a ordenação escolhida sobreviver às atualizações; botões I/II/III por linha |
+| `DamageGridViewModel` | Células com intensidade 0–0,34 (a mistura de cor da página), janela 5–6 e nível atual marcados |
+| Controles | `StatTile`, `ProbabilityMeter`, `RoutineList`, `HeatCell` em `Controls/`; a estrada de níveis ficou na própria janela (um `ListBox` em grade, navegável pelas setas) |
+| Tema e fontes | `Themes/Tarokka.axaml` (paleta clara e escura, acento do Fluent em sangue) e `Themes/TarokkaStyles.axaml` (as classes do CSS original); fontes e licenças OFL em `Assets/Fonts` |
+| Formatação | `Formatting/Format`: pt-BR com uma casa (igual ao `toLocaleString` do JS), porcentagem inteira, sinal tipográfico |
+
+Teclado: Tab percorre todos os seletores, as setas mudam o nível na estrada, Ctrl+← e Ctrl+→ mudam o nível de qualquer lugar, e cada seletor tem nome de acessibilidade.
+
+Testes (`tests/DndMaker.Desktop.Tests`): os ViewModels sobre o conteúdo real, sem janela, e a janela renderizada com `Avalonia.Headless` + Skia nos temas claro e escuro. O teste falha se qualquer ligação de dados registrar aviso e salva capturas em `bin/.../screenshots` para conferência visual.
+
+Outras mudanças: o `App` só monta os serviços no modo desktop (nos testes sem janela ele serve só de tema), e o despachante `IUiDispatcher` leva o aviso de falha ao gravar para a thread da interface.
 
 ## 9. Testes
 

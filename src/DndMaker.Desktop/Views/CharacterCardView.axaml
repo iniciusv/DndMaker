@@ -1,0 +1,117 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DndMaker.Desktop.ViewModels"
+             xmlns:catalog="using:DndMaker.Application.Catalog"
+             xmlns:views="using:DndMaker.Desktop.Views"
+             x:Class="DndMaker.Desktop.Views.CharacterCardView"
+             x:DataType="vm:CharacterCardViewModel">
+  <!-- Uma carta de Tarokka: os seletores em cima, a ficha embaixo. -->
+  <UserControl.Styles>
+    <Style Selector="ComboBox">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="Background" Value="{DynamicResource CardBrush}" />
+      <Setter Property="FontSize" Value="14.5" />
+    </Style>
+  </UserControl.Styles>
+
+  <Border Classes="card" AutomationProperties.Name="{Binding AccessibleName}">
+    <StackPanel>
+      <Grid Margin="16,14" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+        <StackPanel Grid.ColumnSpan="2" Spacing="3">
+          <TextBlock Classes="caps" Text="Build" />
+          <ComboBox ItemsSource="{Binding Archetypes}" SelectedItem="{Binding SelectedArchetype}" AutomationProperties.Name="Build">
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="catalog:ArchetypeOptionDto">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <TextBlock Text="{Binding Name}" />
+                  <TextBlock Classes="blood" Text="★" IsVisible="{Binding IsFinalist}" />
+                </StackPanel>
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Spacing="3" IsVisible="{Binding HasVariants}">
+          <TextBlock Classes="caps" Text="Variante" />
+          <ComboBox ItemsSource="{Binding Variants}" SelectedItem="{Binding SelectedVariant}" AutomationProperties.Name="Variante">
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="catalog:OptionDto">
+                <TextBlock Text="{Binding Name}" />
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Grid.Column="1" Spacing="3">
+          <TextBlock Classes="caps" Text="Espécie" />
+          <ComboBox ItemsSource="{Binding Species}" SelectedItem="{Binding SelectedSpecies}" AutomationProperties.Name="Espécie"
+                    MaxDropDownHeight="420">
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="catalog:SpeciesOptionDto">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <TextBlock Text="{Binding Name}" />
+                  <TextBlock Classes="muted" FontSize="12" VerticalAlignment="Center" Text="{Binding Source}" />
+                </StackPanel>
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Spacing="3" IsVisible="{Binding ShowsExtraOriginFeat}">
+          <TextBlock Classes="caps" Text="Talento extra do humano" />
+          <ComboBox ItemsSource="{Binding ExtraOriginFeats}" SelectedItem="{Binding SelectedExtraOriginFeat}"
+                    AutomationProperties.Name="Talento extra do humano">
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="catalog:OptionDto">
+                <TextBlock Text="{Binding Name}" />
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Spacing="3">
+          <TextBlock Classes="caps" Text="Antecedente" />
+          <ComboBox ItemsSource="{Binding Backgrounds}" SelectedItem="{Binding SelectedBackground}" AutomationProperties.Name="Antecedente"
+                    MaxDropDownHeight="420">
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="catalog:BackgroundOptionDto">
+                <TextBlock Text="{Binding Label}" TextTrimming="CharacterEllipsis" />
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+        </StackPanel>
+
+        <ItemsControl Grid.Row="4" Grid.ColumnSpan="2" ItemsSource="{Binding LevelChoices}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <UniformGrid Columns="2" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:LevelChoiceViewModel">
+              <StackPanel Spacing="3" Margin="0,0,5,0">
+                <TextBlock Classes="caps" Text="{Binding Label}" />
+                <ComboBox ItemsSource="{Binding Options}" SelectedItem="{Binding Selected}" AutomationProperties.Name="{Binding Label}">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="catalog:OptionDto">
+                      <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </Grid>
+
+      <Rectangle Height="1" Fill="{DynamicResource LineBrush}" />
+      <ContentControl Content="{Binding Sheet}">
+        <ContentControl.ContentTemplate>
+          <DataTemplate x:DataType="vm:SheetViewModel">
+            <views:SheetView />
+          </DataTemplate>
+        </ContentControl.ContentTemplate>
+      </ContentControl>
+    </StackPanel>
+  </Border>
+</UserControl>

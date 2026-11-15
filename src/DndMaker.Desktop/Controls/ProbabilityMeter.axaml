@@ -1,0 +1,17 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DndMaker.Desktop.ViewModels"
+             x:Class="DndMaker.Desktop.Controls.ProbabilityMeter"
+             x:DataType="vm:MeterViewModel">
+  <!-- Chance de passar num teste: verde a partir de 60%, âmbar a partir de 40%. -->
+  <StackPanel Spacing="2">
+    <DockPanel>
+      <TextBlock DockPanel.Dock="Right" Classes="percent" Classes.mid="{Binding IsMid}" Classes.good="{Binding IsGood}"
+                 Text="{Binding PercentText}" />
+      <TextBlock Text="{Binding Label}" TextWrapping="Wrap" />
+    </DockPanel>
+    <ProgressBar Classes="meter" Classes.mid="{Binding IsMid}" Classes.good="{Binding IsGood}" Value="{Binding Percent}"
+                 AutomationProperties.Name="{Binding Label}" AutomationProperties.HelpText="{Binding PercentText}" />
+    <TextBlock Classes="fine" FontSize="12.5" Text="{Binding Caption}" />
+  </StackPanel>
+</UserControl>

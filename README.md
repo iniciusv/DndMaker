@@ -17,6 +17,13 @@ dotnet run --project src/DndMaker.Desktop
 node tools/golden/export-golden.js    # gera de novo tools/golden/golden.json a partir do logic.js
 ```
 
+## Uso
+
+- A comparação fica gravada em `%AppData%/DndMaker/comparison.json` e volta ao abrir o programa.
+- Teclado: Tab percorre os seletores, as setas mudam o nível na estrada, Ctrl+← e Ctrl+→ mudam o nível de qualquer lugar.
+- O tema claro ou escuro segue o do sistema.
+- `dotnet test` também renderiza a janela sem tela e salva capturas em `tests/DndMaker.Desktop.Tests/bin/Debug/net10.0/screenshots`.
+
 ## Projetos
 
 | Projeto | Papel |

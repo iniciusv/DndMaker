@@ -1,5 +1,6 @@
 using DndMaker.Application;
 using DndMaker.Content;
+using DndMaker.Desktop.Services;
 using DndMaker.Desktop.ViewModels;
 using DndMaker.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +17,7 @@ internal static class CompositionRoot
         services.AddCurseOfStrahdContent();
         services.AddApplication();
         services.AddInfrastructure(comparisonFilePath);
+        services.AddSingleton<IUiDispatcher, AvaloniaUiDispatcher>();
         services.AddSingleton<MainViewModel>();
 
         return services.BuildServiceProvider(new ServiceProviderOptions
