@@ -130,7 +130,7 @@ Como ficou na fase 1 (`src/DndMaker.Domain/Checks`):
 - `D20Check(Modifier, Target, Mode, Naturals, RerollNaturalOnes)` calcula a chance exata. Como passar ou falhar só cresce com o valor do dado, vantagem é `1 − (1 − p)²` e desvantagem é `p²`.
 - **Halfling:** `RerollNaturalOnes` rerrola o 1 natural só quando ele falharia.
 - **Lucky:** é uma fonte de vantagem, via `WithAdvantage()` (que também cancela desvantagem).
-- **Recuperações** (`SuccessWith`): `BonusOnFailure` (Survivor) soma na mesma rolagem; `RerollOnFailure` (Countercharm) é uma rolagem nova com o modificador original, aplicada depois dos bônus.
+- **Recuperações** (`SuccessWith`): `BonusOnFailure` (Survivor) soma na mesma rolagem; `RerollOnFailure` (Countercharm) é uma rolagem nova, aplicada depois dos bônus. O bônus só é gasto se salvar a rolagem; se ela falha mesmo com ele, o bônus vale na rerrolagem (corrigido na fase 6).
 - Os testes conferem tudo contra uma enumeração de todos os resultados e contra as fórmulas do `logic.js` (ataque, falha do monstro, charme com Countercharm).
 - A lista dos atributos em ordem é `AbilityList.All`, porque o nome `Abilities` colidia com o namespace.
 
@@ -388,7 +388,7 @@ Outras mudanças: o `App` só monta os serviços no modo desktop (nos testes sem
 
 | Problema | Correção | Teste |
 |---|---|---|
-| 1 | A chance mostrada é a "gastando recursos": Lucky e Watcher's Will (`SaveAdvantageResource`) dão vantagem se ainda não houver; Survivor (`ProficiencyBonusOnFailure`) soma o PB depois da falha; Countercharm continua rerrolando. A carta diz o que entrou e quanto seria sem gastar nada. Twilight Sanctuary (`ConditionRemedy`) encerra o charme depois e aparece à parte, fora da conta, porque não muda a chance do teste | `Diverge_1_*` |
+| 1 | A chance mostrada é a "gastando recursos": Lucky e Watcher's Will (`SaveAdvantageResource`) dão vantagem se ainda não houver; Survivor (`ProficiencyBonusOnFailure`) soma o PB depois da falha; Countercharm continua rerrolando, e o Survivor que não salvou a primeira rolagem vale na rerrolagem. A carta diz o que entrou e quanto seria sem gastar nada. Twilight Sanctuary (`ConditionRemedy`) encerra o charme depois e aparece à parte, fora da conta, porque não muda a chance do teste | `Diverge_1_*` |
 | 2 | "… contra morto-vivo" é `Situation.VsUndead`: aparece na lista, com etiqueta, mas não no melhor turno | `Diverge_2_*` |
 | 3 | `RoutineEstimate.AttackBonuses` traz todos os bônus diferentes; a carta mostra "ataques +6 e +7" | `Diverge_3_*`, `Rotina_com_dois_ataques_mostra_os_dois_bonus` |
 | 4 | Nova variante "Bordão com Shillelagh (Dueling)", que exige Magic Initiate (Druida). Defense e Dueling usam a espada. O Dueling no bordão ficou: numa mão, com escudo, as regras de 2024 permitem | `Diverge_4_*` (a variante reproduz o bordão do JS em todos os casos) |

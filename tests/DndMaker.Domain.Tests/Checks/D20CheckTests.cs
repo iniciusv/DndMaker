@@ -96,15 +96,47 @@ public sealed class D20CheckTests
     }
 
     [Fact]
-    public void Bonus_entra_antes_das_rerrolagens_e_a_rerrolagem_usa_o_modificador_original()
+    public void Bonus_que_nao_salvou_a_primeira_rolagem_vale_na_rerrolagem()
     {
         var check = D20Check.Save(1, new DifficultyClass(17));
         var withBonus = (check with { Modifier = 4 }).Success();
-        var reroll = (check with { Mode = RollMode.Advantage }).Success();
+        var reroll = (check with { Modifier = 4, Mode = RollMode.Advantage }).Success();
 
         var actual = check.SuccessWith([new RerollOnFailure(RollMode.Advantage, "Countercharm"), new BonusOnFailure(3, "Survivor")]);
 
         actual.Value.Should().BeApproximately(withBonus.Value + ((1 - withBonus.Value) * reroll.Value), Tolerance);
+    }
+
+    [Theory]
+    [InlineData(-1, 3)]
+    [InlineData(0, 3)]
+    [InlineData(1, 4)]
+    [InlineData(5, 2)]
+    public void Bonus_e_rerrolagem_batem_com_a_enumeracao_jogando_bem(int modifier, int bonus)
+    {
+        // Joga cada resultado: o bônus só é gasto se salvar a rolagem; senão fica para a rerrolagem com vantagem.
+        const int Dc = 17;
+        bool Passes(int face, bool bonusLeft) => face + modifier + (bonusLeft ? bonus : 0) >= Dc;
+
+        var successes = 0;
+        for (var first = 1; first <= 20; first++)
+        {
+            for (var a = 1; a <= 20; a++)
+            {
+                for (var b = 1; b <= 20; b++)
+                {
+                    if (Passes(first, bonusLeft: true) || Passes(Math.Max(a, b), bonusLeft: true))
+                    {
+                        successes++;
+                    }
+                }
+            }
+        }
+
+        var check = D20Check.Save(modifier, new DifficultyClass(Dc));
+        var actual = check.SuccessWith([new RerollOnFailure(RollMode.Advantage, "Countercharm"), new BonusOnFailure(bonus, "Survivor")]);
+
+        actual.Value.Should().BeApproximately(successes / 8000.0, Tolerance);
     }
 
     [Fact]

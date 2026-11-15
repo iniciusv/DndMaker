@@ -62,18 +62,20 @@ public sealed record D20Check(
 
     /// <summary>
     /// Sucesso considerando o que pode ser usado depois de uma falha.
-    /// Bônus valem na mesma rolagem e são somados; rerrolagens vêm depois, cada uma uma rolagem nova
-    /// com o modificador original.
+    /// Bônus valem na mesma rolagem e são somados; rerrolagens vêm depois, cada uma uma rolagem nova.
+    /// O bônus só é gasto quando transforma a falha em sucesso, e aí não há rerrolagem; se a rolagem
+    /// falha mesmo com ele, o bônus continua guardado e vale na rerrolagem (Survivor com Countercharm).
     /// </summary>
     public Probability SuccessWith(IEnumerable<CheckRecovery> recoveries)
     {
         var list = recoveries.ToList();
         var bonus = list.OfType<BonusOnFailure>().Sum(b => b.Bonus);
-        var success = (this with { Modifier = Modifier + bonus }).Success();
+        var withBonus = this with { Modifier = Modifier + bonus };
+        var success = withBonus.Success();
 
         foreach (var reroll in list.OfType<RerollOnFailure>())
         {
-            success = success.OrElse((this with { Mode = reroll.Mode }).Success());
+            success = success.OrElse((withBonus with { Mode = reroll.Mode }).Success());
         }
 
         return success;

@@ -34,6 +34,17 @@ public sealed class DivergenceTests
     }
 
     [Fact]
+    public void Diverge_1_Survivor_que_nao_salvou_vale_na_rerrolagem_do_Countercharm()
+    {
+        // Guerreiro 1 → Bardo do Valor, Haunted One, nível 8: SAB +0 contra CD 17, PB +3.
+        // Passa de primeira com o Survivor (35%); senão o Survivor fica guardado para a rerrolagem com vantagem.
+        var sheet = GoldenAdapter.Analyze(Input("fval", "defense", "humano", "haunted", "alert", 8));
+
+        sheet.Charm.Resources.Should().Equal("Countercharm", "Survivor");
+        sheet.Charm.WithResources.Value.Should().BeApproximately(0.35 + (0.65 * (1 - (0.65 * 0.65))), Tolerance);
+    }
+
+    [Fact]
     public void Diverge_1_Lucky_e_Watchers_Will_dao_vantagem_gastando_recurso()
     {
         // Paladino, nível 3, Lucky como talento extra: SAB +3 contra CD 17 (35%); com vantagem, 1 − 0,65².
